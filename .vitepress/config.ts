@@ -48,6 +48,7 @@ export default defineConfig({
           { text: "Voyage Embeddings", link: "/integrations/voyage-embeddings" },
           { text: "UploadThing", link: "/integrations/uploadthing" },
           { text: "Biome + Ultracite", link: "/integrations/biome-ultracite" },
+          { text: "Testing", link: "/integrations/testing" },
         ],
       },
       {
