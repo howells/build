@@ -55,6 +55,41 @@ Key features:
 - **`wait` field** — Regex matching for webServer readiness
 - **Playwright Agents** — AI-assisted test generation
 
+### Test IDs
+
+- MUST: Use `data-testid` attributes for E2E test selectors.
+- MUST: Configure Playwright to use `testid` as the attribute name.
+- NEVER: Select by text content, CSS classes, or DOM structure—these change frequently.
+- SHOULD: Use semantic locators (`getByRole`, `getByLabel`) for accessible elements.
+
+```ts
+// playwright.config.ts
+import { defineConfig } from "@playwright/test";
+
+export default defineConfig({
+  use: {
+    testIdAttribute: "data-testid",
+  },
+});
+```
+
+In components:
+```tsx
+<button data-testid="submit-button">Submit</button>
+<div data-testid="user-profile">{user.name}</div>
+```
+
+In tests:
+```ts
+// Preferred: test IDs for custom elements
+await page.getByTestId("submit-button").click();
+await expect(page.getByTestId("user-profile")).toContainText("John");
+
+// Also good: semantic locators for standard elements
+await page.getByRole("button", { name: "Submit" }).click();
+await page.getByLabel("Email").fill("user@example.com");
+```
+
 ### Generate tests interactively:
 ```bash
 npx playwright codegen http://localhost:4000
