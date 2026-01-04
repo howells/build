@@ -1,16 +1,35 @@
 # Interface: Content & Accessibility
 
 Source references:
-- Vercel Design – Web Interface Guidelines: https://vercel.com/design/guidelines
-- Web Interface Guidelines: https://github.com/vercel-labs/web-interface-guidelines
+- Vercel Web Interface Guidelines: https://vercel.com/design/guidelines
+- Rauno Freiberg: https://interfaces.rauno.me/
 
 ## ARIA
-- NEVER: Use `aria-hidden="true"` on focusable elements.
-- MUST: Label elements need text and an associated input.
-- MUST: All anchors must be valid and navigable.
-- MUST: Accurate names (`aria-label`), decorative elements `aria-hidden`, verify in the Accessibility Tree.
-- MUST: Icon-only buttons have descriptive `aria-label`.
-- MUST: Prefer native semantics (`button`, `a`, `label`, `table`) before ARIA.
+
+- NEVER: Use `aria-hidden="true"` on focusable elements
+- MUST: Label elements need text and an associated input
+- MUST: All anchors must be valid and navigable
+- MUST: Accurate names (`aria-label`), decorative elements `aria-hidden`, verify in the Accessibility Tree
+- MUST: Icon-only buttons have descriptive `aria-label`
+- MUST: Prefer native semantics (`button`, `a`, `label`, `table`) before ARIA
+- NEVER: Add tooltips to disabled buttons (inaccessible to keyboard users)
+- MUST: Tooltips shouldn't contain interactive content
+- MUST: Always render images with `<img>` tags for screen readers (not CSS backgrounds)
+- MUST: HTML illustrations need explicit `aria-label` (raw DOM is announced otherwise)
+
+## Focus
+
+- SHOULD: Use `box-shadow` for focus rings instead of `outline` (respects border-radius):
+
+```css
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+}
+```
+
+- MUST: Enable arrow-key navigation (↑↓) in sequential focusable lists
+- SHOULD: Enable ⌘/Ctrl+Backspace deletion in sequential lists
 
 ## Content & Accessibility
 - SHOULD: Inline help first; tooltips last resort

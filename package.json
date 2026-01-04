@@ -1,0 +1,15 @@
+{
+  "name": "build-docs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "npm run llms && vitepress build",
+    "preview": "vitepress preview",
+    "llms": "node scripts/generate-llms-txt.js"
+  },
+  "devDependencies": {
+    "vitepress": "^1.5.0"
+  }
+}
