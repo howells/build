@@ -2,6 +2,25 @@
 
 Drizzle is a type-safe ORM with SQL-like syntax. Neon is serverless PostgreSQL with branching and instant scaling.
 
+## Migration Strategy
+
+**Prefer `db:push` over formal migrations.**
+
+| Approach | When to Use |
+|----------|-------------|
+| `db:push` | Default for all development and most production |
+| `db:generate` + `db:migrate` | Only when you need migration history for compliance/audit |
+
+Rationale: `db:push` is faster, simpler, and sufficient for most apps. It directly syncs your schema to the database without generating migration files. Neon's branching makes it safe to iterate quickly—create a branch, push changes, test, merge or discard.
+
+```bash
+# Development workflow
+pnpm db:push      # Apply schema changes directly
+pnpm db:studio    # Inspect data
+```
+
+For breaking changes (dropping columns, renaming), push still works—Drizzle will prompt for confirmation on destructive operations.
+
 ## Installation
 
 ```bash

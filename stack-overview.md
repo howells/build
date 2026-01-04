@@ -69,13 +69,31 @@ Some projects use `@supabase/supabase-js` + `@supabase/ssr` instead of Neon.
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| @base-ui/react | 1.x | Unstyled primitives |
-| @radix-ui/* | Various | Accessible primitives |
+| @base-ui/react | 1.x | Unstyled primitives (preferred) |
+| @radix-ui/* | Various | Accessible primitives (legacy) |
 | shadcn | 3.x | Component scaffolding |
 | lucide-react | 0.56x | Icons |
 | sonner | 2.x | Toasts |
 | cmdk | 1.x | Command palette |
 | vaul | 1.x | Drawer component |
+
+### Component Strategy
+
+**Use shadcn for scaffolding, prefer Base UI primitives.**
+
+shadcn generates component code into your project—you own and customize it. When adding components:
+
+1. **Check Base UI first** — Base UI components are unstyled and more flexible than Radix
+2. **Fall back to Radix** — Only when Base UI doesn't have the primitive you need
+3. **Customize freely** — shadcn components are yours to modify, not a dependency
+
+Base UI advantages over Radix:
+- Truly unstyled (no CSS reset battles)
+- More composable API
+- Smaller bundle size
+- Better TypeScript inference
+
+Example: For a new dropdown, use `@base-ui/react` Menu instead of `@radix-ui/react-dropdown-menu`.
 
 ## Animation
 
