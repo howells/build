@@ -26,6 +26,7 @@ Reference documentation distilled from 15 active projects. Use this to bootstrap
 | [integrations/clerk-auth.md](./integrations/clerk-auth.md) | Authentication |
 | [integrations/trpc.md](./integrations/trpc.md) | Type-safe APIs |
 | [integrations/drizzle-neon.md](./integrations/drizzle-neon.md) | Database ORM + serverless PostgreSQL |
+| [integrations/env-validation.md](./integrations/env-validation.md) | Type-safe env vars (Zod, not t3-env) |
 
 ## Mandatory Minimums (New Projects)
 
