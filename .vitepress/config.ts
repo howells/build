@@ -36,6 +36,7 @@ export default defineConfig({
         items: [
           { text: "TypeScript", link: "/integrations/typescript" },
           { text: "Tailwind CSS", link: "/integrations/tailwind" },
+          { text: "Design System", link: "/integrations/design-system" },
           { text: "Clerk Auth", link: "/integrations/clerk-auth" },
           { text: "Drizzle + Neon", link: "/integrations/drizzle-neon" },
           { text: "tRPC", link: "/integrations/trpc" },
