@@ -101,11 +101,11 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: "github", link: "https://github.com/howells/docs" },
+      { icon: "github", link: "https://github.com/howells/build" },
     ],
 
     editLink: {
-      pattern: "https://github.com/howells/docs/edit/main/:path",
+      pattern: "https://github.com/howells/build/edit/main/:path",
       text: "Edit this page",
     },
 
