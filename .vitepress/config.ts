@@ -2,7 +2,7 @@ import { defineConfig } from "vitepress";
 
 export default defineConfig({
   title: "Build",
-  description: "How I build software — Daniel Howells",
+  description: "Reference for building modern web apps with Next.js, React, and TypeScript",
 
   head: [
     ["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
@@ -34,6 +34,8 @@ export default defineConfig({
         text: "Integrations",
         collapsed: false,
         items: [
+          { text: "TypeScript", link: "/integrations/typescript" },
+          { text: "Tailwind CSS", link: "/integrations/tailwind" },
           { text: "Clerk Auth", link: "/integrations/clerk-auth" },
           { text: "Drizzle + Neon", link: "/integrations/drizzle-neon" },
           { text: "tRPC", link: "/integrations/trpc" },
@@ -108,7 +110,7 @@ export default defineConfig({
     },
 
     footer: {
-      message: "Personal development reference",
+      message: "A reference for building modern web apps",
       copyright: "Daniel Howells",
     },
   },
