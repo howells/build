@@ -93,7 +93,7 @@ The `rules/` directory contains coding conventions formatted for [Ruler](./ruler
 
 ```bash
 # Copy rules to your project
-cp -r /path/to/docs/rules /your-project/.ruler
+cp -r /path/to/build/rules /your-project/.ruler
 
 # Rename the index
 mv /your-project/.ruler/README.md /your-project/.ruler/agents.md
