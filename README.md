@@ -74,6 +74,9 @@ How to set up and use specific tools:
 | [drizzle-neon.md](./integrations/drizzle-neon.md) | Database ORM + serverless PostgreSQL |
 | [trpc.md](./integrations/trpc.md) | Type-safe APIs |
 | [env-validation.md](./integrations/env-validation.md) | Type-safe env vars (Zod, not t3-env) |
+| [zustand.md](./integrations/zustand.md) | State management (when to use vs Context) |
+| [forms.md](./integrations/forms.md) | Form handling (native, react-hook-form, Zod) |
+| [resend-email.md](./integrations/resend-email.md) | Transactional email |
 | [openrouter.md](./integrations/openrouter.md) | Multi-model AI |
 | [fal-ai.md](./integrations/fal-ai.md) | Image generation |
 | [voyage-embeddings.md](./integrations/voyage-embeddings.md) | Text/image embeddings |
