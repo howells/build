@@ -2,6 +2,18 @@
 
 Complete dependency list with current versions and installation commands.
 
+## Philosophy
+
+Prefer battle-tested packages over custom implementations:
+
+- **Hooks**: Use `usehooks-ts` instead of writing custom hooks
+- **Utilities**: Use `es-toolkit` instead of lodash (faster, smaller, TypeScript-first)
+- **Dates**: Use `dayjs` (lighter than moment, better than native Date)
+- **Forms**: Use `react-hook-form` + `zod` for validation
+- **State**: Server state with React Query, client state with Zustand
+- **UI**: Headless primitives (Base UI > Radix UI) styled with Tailwind
+- **Animation**: `motion` library for new projects
+
 ## Core Dependencies
 
 ### Framework
@@ -211,6 +223,37 @@ pnpm add next-themes@0.4.6
 pnpm add zustand@5.0.8
 ```
 
+### React Hooks
+```bash
+pnpm add usehooks-ts@3.1.1
+```
+
+Common hooks: `useLocalStorage`, `useMediaQuery`, `useDebounce`, `useCopyToClipboard`, `useWindowSize`, `useEventListener`, `useIntersectionObserver`
+
+### Utility Functions
+```bash
+pnpm add es-toolkit@1.35.1
+```
+
+Modern lodash replacement—2-3x faster, smaller bundle, TypeScript-first. Use for: `debounce`, `throttle`, `groupBy`, `chunk`, `uniq`, `pick`, `omit`, `cloneDeep`, etc.
+
+https://es-toolkit.dev/
+
+### Date/Time
+```bash
+pnpm add dayjs@1.11.15
+```
+
+### Forms
+```bash
+pnpm add react-hook-form@7.56.4 @hookform/resolvers@5.0.1
+```
+
+### Carousels
+```bash
+pnpm add embla-carousel-react@8.7.4
+```
+
 ### Markdown Rendering
 ```bash
 pnpm add react-markdown@10.1.0 marked@17.0.1
@@ -272,3 +315,15 @@ When updating, keep these groups aligned:
 | Tailwind | tailwindcss, @tailwindcss/postcss |
 | Drizzle | drizzle-orm, drizzle-kit |
 | AI SDK | ai, @ai-sdk/openai |
+
+## Packages to Avoid
+
+| Package | Reason | Use Instead |
+|---------|--------|-------------|
+| moment | Large bundle, deprecated | dayjs |
+| lodash | Large bundle, not TypeScript-first | es-toolkit |
+| react-use | Less maintained | usehooks-ts |
+| Swiper | Heavy, complex API | embla-carousel |
+| Custom useDebounce | Reinventing the wheel | usehooks-ts or es-toolkit |
+| Custom useLocalStorage | Edge cases handled poorly | usehooks-ts |
+| Custom useMediaQuery | Browser inconsistencies | usehooks-ts |

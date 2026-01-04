@@ -345,9 +345,3 @@ export type Post = InferSelectModel<typeof posts>;
 export type NewPost = InferInsertModel<typeof posts>;
 ```
 
-## Projects Using Drizzle + Neon
-
-All projects use this stack:
-- **notiflow**, **reccs**, **faceplacer** (single app)
-- **kinecho**, **beacon**, **scenes** (monorepo packages/db)
-- **populararchive**, **materia**, **designround** (monorepo)

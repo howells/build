@@ -177,7 +177,3 @@ async function generateWithRetry(prompt: string, maxRetries = 3) {
 }
 ```
 
-## Projects Using fal.ai
-
-- **faceplacer** - Face replacement
-- **populararchive** - Article illustrations

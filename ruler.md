@@ -212,7 +212,7 @@ git add CLAUDE.md .cursorrules AGENTS.md
 
 ## Complete Ruleset
 
-See the `rules/` directory in this documentation for a complete, copy-paste-ready ruleset based on the materia project:
+See the `rules/` directory for a complete, copy-paste-ready ruleset:
 
 - [rules/README.md](./rules/README.md) - Rule directory index
 - [rules/code-style.md](./rules/code-style.md) - Formatting and syntax

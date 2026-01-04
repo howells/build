@@ -1,6 +1,6 @@
-# Stack Reference
+# Build
 
-Personal development reference—the single source of truth for how I build software. Distilled from 15 active projects.
+A complete reference for building modern web applications with Next.js, React, TypeScript, and the tools that work best together.
 
 ## What This Is
 
@@ -8,10 +8,10 @@ Two complementary layers:
 
 | Layer | Purpose | When to Use |
 |-------|---------|-------------|
-| **Docs** (this repo) | Reference material, setup guides, patterns | When starting a project or remembering how something works |
-| **Rules** (`rules/`) | AI agent coding rules via [Ruler](./ruler.md) | Copy to `.ruler/` in your project → generates CLAUDE.md |
+| **Docs** (this site) | Reference material, setup guides, integration patterns | Starting a new project or setting up a tool |
+| **Rules** (`rules/`) | AI agent coding rules via [Ruler](./ruler.md) | Copy to `.ruler/` in any project → generates CLAUDE.md |
 
-The docs teach you *how to set things up*. The rules tell AI *how to write code* in your style.
+The docs teach *how to set things up*. The rules tell AI agents *how to write code* following these conventions.
 
 ---
 

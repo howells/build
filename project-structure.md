@@ -1,15 +1,15 @@
 # Project Structure Patterns
 
-Two patterns emerge across your projects: **monorepos** (Turborepo) and **single apps**.
+Two patterns work well: **monorepos** (Turborepo + pnpm) and **single apps**.
 
 ## Decision Matrix
 
-| Use Case | Pattern | Example Projects |
-|----------|---------|------------------|
-| Multiple apps sharing code | Monorepo | kinecho, materia, blomma |
-| Single app with internal packages | Monorepo | throughline, beacon |
-| Standalone app, no code sharing | Single App | notiflow, reccs, faceplacer |
-| Rapid prototype | Single App | Start here, extract later |
+| Use Case | Pattern |
+|----------|---------|
+| Multiple apps sharing code | Monorepo |
+| Single app with internal packages | Monorepo |
+| Standalone app, no code sharing | Single App |
+| Rapid prototype | Single App (extract to monorepo later if needed) |
 
 ## Monorepo Structure (Turborepo + pnpm)
 

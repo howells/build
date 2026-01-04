@@ -1,6 +1,6 @@
 # Standard Scripts
 
-Consistent npm scripts across all projects.
+Consistent npm scripts for Next.js projects.
 
 ## Development
 
@@ -12,24 +12,22 @@ Consistent npm scripts across all projects.
 | `build` | `next build` or `turbo run build` | Production build |
 | `start` | `next start` | Production server |
 
-### Port Assignments
+### Port Assignment Strategy
 
-| Project | Port |
-|---------|------|
-| notiflow | 4000 |
-| reccs | 5001 |
-| populararchive | 7000 |
-| scenes | 8000 |
-| kinecho | 9000 |
-| massiveconnects | 10000 |
-| faceplacer | 11000 |
-| beacon | 12000 |
-| beeline | 13000 |
-| blomma web | 14000 |
-| blomma admin | 14001 |
-| blomma api | 14002 |
-| designround | 15000 |
-| throughline | 16000 |
+Use consistent, memorable ports across projects to avoid conflicts:
+
+```bash
+# Single apps: pick a port in the 4000-5000 range
+next dev --turbopack --port 4000
+
+# Monorepos: use related ports for apps in the same project
+# web: 4000, admin: 4001, api: 4002
+```
+
+Common ranges:
+- **4000-5000**: Main web apps
+- **5001-6000**: Secondary apps, APIs
+- **8000-9000**: Dev tools, studios
 
 ## Code Quality
 

@@ -240,7 +240,7 @@ stores/                         # App-wide stores (if any)
 
 **Principle**: Keep stores small and feature-local. Don't create a global store package—each feature owns its state.
 
-## Patterns from Projects
+## Common Patterns
 
 ### Toggle with Same-Value Detection
 

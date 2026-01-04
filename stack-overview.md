@@ -1,6 +1,6 @@
 # Stack Overview
 
-Current production stack as of January 2026, extracted from 15 active projects.
+The recommended production stack for new projects (January 2026).
 
 ## Core Framework
 
@@ -38,7 +38,7 @@ Current production stack as of January 2026, extracted from 15 active projects.
 | postgres | 3.x | Node PostgreSQL driver |
 
 ### Alternative: Supabase
-Some projects use `@supabase/supabase-js` + `@supabase/ssr` instead of Neon.
+For projects needing Supabase features (Auth, Realtime, Storage), use `@supabase/supabase-js` + `@supabase/ssr` instead of Neon.
 
 ## Authentication
 
@@ -46,7 +46,7 @@ Some projects use `@supabase/supabase-js` + `@supabase/ssr` instead of Neon.
 |------|---------|-------|
 | @clerk/nextjs | 6.x | Primary auth solution |
 | @clerk/testing | 1.x | Test utilities |
-| better-auth | 1.x | Alternative (throughline) |
+| better-auth | 1.x | Self-hosted alternative |
 
 ## API Layer
 

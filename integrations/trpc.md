@@ -333,9 +333,3 @@ export const postsRouter = router({
 });
 ```
 
-## Projects Using tRPC
-
-- **kinecho** - Full tRPC API layer
-- **massiveconnects** - Content API
-- **beacon** - Location services API
-- **throughline** - AI writing API

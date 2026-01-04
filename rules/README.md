@@ -51,12 +51,11 @@ All rule docs use RFC 2119 terms (MUST/SHOULD/NEVER). Files are lowercase/kebab-
 
 ## Customization
 
-Adapt these rules to your project:
+Adapt these rules to fit your project:
 
 1. **Remove unused rules** - Delete files for tech you don't use
-2. **Modify design system refs** - Replace `@materia/ui` with your package
-3. **Adjust env package refs** - Replace `@materia/env` with your package
-4. **Add project-specific rules** - Create new `.md` files as needed
+2. **Update package names** - Replace `@project/ui`, `@project/env` with your actual package names
+3. **Add project-specific rules** - Create new `.md` files as needed
 
 ## Notes
 

@@ -298,9 +298,3 @@ test("authenticated user can access dashboard", async ({ page }) => {
 });
 ```
 
-## Projects Using Clerk
-
-- **notiflow**, **reccs**, **faceplacer** - User auth
-- **kinecho**, **beacon** - User + organization auth
-- **scenes**, **throughline** - User profiles
-- **blomma** - Multi-app auth (web + admin)

@@ -113,17 +113,10 @@ const { frontmatter } = useData()
 }
 
 .toc {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
   margin-bottom: 80px;
-}
-
-@media (max-width: 540px) {
-  .toc {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
 }
 
 .toc-section h2 {
@@ -132,13 +125,22 @@ const { frontmatter } = useData()
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--vp-c-text-3);
-  margin: 0 0 16px;
+  margin: 0 0 12px;
 }
 
 .toc-section ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 48px;
+}
+
+@media (max-width: 480px) {
+  .toc-section ul {
+    grid-template-columns: 1fr;
+  }
 }
 
 .toc-section li {

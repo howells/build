@@ -235,8 +235,3 @@ async function batchEmbed(texts: string[], batchSize = 100) {
 }
 ```
 
-## Projects Using Voyage
-
-- **reccs** - Semantic search for recommendations
-- **scenes** - Film/book similarity matching
-- **populararchive** - Content embeddings for search

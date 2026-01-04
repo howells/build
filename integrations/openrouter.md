@@ -168,9 +168,3 @@ const result = await generateText({
 });
 ```
 
-## Projects Using OpenRouter
-
-- **reccs** - AI-powered recommendations
-- **scenes** - Film/book discovery with AI
-- **throughline** - AI writing assistant
-- **populararchive** - Content transformation

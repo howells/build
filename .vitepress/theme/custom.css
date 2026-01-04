@@ -102,34 +102,151 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Headings */
-.vp-doc h1,
-.vp-doc h2,
-.vp-doc h3,
-.vp-doc h4 {
-  font-weight: 500;
-  letter-spacing: -0.01em;
+/* ============================================
+   NAV - Minimal, understated
+   ============================================ */
+.VPNav {
+  border-bottom: 1px solid var(--vp-c-divider-light);
 }
 
+.VPNavBar .title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.VPNavBarMenu .VPNavBarMenuLink {
+  font-size: 13px;
+  color: var(--vp-c-text-3);
+}
+
+.VPNavBarMenu .VPNavBarMenuLink:hover,
+.VPNavBarMenu .VPNavBarMenuLink.active {
+  color: var(--vp-c-text-1);
+}
+
+/* Search - more subtle */
+.VPNavBarSearch .DocSearch-Button {
+  background: transparent;
+  border: 1px solid var(--vp-c-divider-light);
+}
+
+.VPNavBarSearch .DocSearch-Button:hover {
+  border-color: var(--vp-c-divider);
+}
+
+/* ============================================
+   SIDEBAR - Editorial, quiet
+   ============================================ */
+.VPSidebar {
+  border-right: 1px solid var(--vp-c-divider-light);
+}
+
+/* Section headers - uppercase like homepage */
+.VPSidebarItem.level-0 > .item > .text {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--vp-c-text-3);
+}
+
+/* Links */
+.VPSidebarItem .text {
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+  transition: color 0.15s;
+}
+
+.VPSidebarItem .text:hover {
+  color: var(--vp-c-text-1);
+}
+
+.VPSidebarItem.is-active > .item > .text {
+  color: var(--vp-c-text-1);
+  font-weight: 400;
+}
+
+/* Remove indicator bar */
+.VPSidebarItem.is-active > .item > .indicator {
+  display: none;
+}
+
+/* ============================================
+   ON THIS PAGE (TOC) - Minimal
+   ============================================ */
+.VPDocAsideOutline .outline-title {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--vp-c-text-3);
+}
+
+.VPDocAsideOutline .outline-link {
+  font-size: 12px;
+  color: var(--vp-c-text-3);
+  transition: color 0.15s;
+}
+
+.VPDocAsideOutline .outline-link:hover,
+.VPDocAsideOutline .outline-link.active {
+  color: var(--vp-c-text-1);
+}
+
+/* Hide the marker */
+.VPDocAsideOutline .outline-marker {
+  display: none;
+}
+
+/* ============================================
+   CONTENT - Refined typography
+   ============================================ */
 .vp-doc h1 {
-  font-size: 1.75rem;
-  line-height: 1.3;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .vp-doc h2 {
-  font-size: 1.25rem;
-  margin-top: 2.5rem;
-  padding-top: 1rem;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--vp-c-divider-light);
+}
+
+.vp-doc h3 {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-top: 32px;
+}
+
+.vp-doc h4 {
+  font-size: 13px;
+  font-weight: 500;
 }
 
 /* Paragraph */
 .vp-doc p {
-  font-size: 0.9375rem;
+  font-size: 14px;
   line-height: 1.7;
   color: var(--vp-c-text-2);
 }
 
-/* Links - subtle underline style */
+/* Lists */
+.vp-doc ul,
+.vp-doc ol {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--vp-c-text-2);
+}
+
+/* Links - subtle underline */
 .vp-doc a {
   color: var(--vp-c-text-1);
   text-decoration: underline;
@@ -142,9 +259,25 @@ body {
   text-decoration-color: var(--vp-c-text-1);
 }
 
+/* Permalink hash - hide by default */
+.vp-doc .header-anchor {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.vp-doc h1:hover .header-anchor,
+.vp-doc h2:hover .header-anchor,
+.vp-doc h3:hover .header-anchor {
+  opacity: 0.3;
+}
+
 /* Code blocks */
+.vp-doc [class*="language-"] {
+  border-radius: 6px;
+}
+
 .vp-doc [class*="language-"] code {
-  font-size: 0.8125rem;
+  font-size: 13px;
 }
 
 .vp-doc :not(pre) > code {
@@ -154,89 +287,44 @@ body {
   font-size: 0.875em;
 }
 
-/* Tables */
+/* Tables - refined */
 .vp-doc table {
-  font-size: 0.875rem;
+  font-size: 13px;
 }
 
 .vp-doc th {
+  font-size: 11px;
   font-weight: 500;
-  text-transform: none;
-  letter-spacing: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--vp-c-text-3);
 }
 
-/* Nav */
-.VPNav {
-  border-bottom: 1px solid var(--vp-c-divider-light);
-}
-
-.VPNavBar .title {
-  font-weight: 500;
-}
-
-/* Sidebar */
-.VPSidebar {
-  border-right: 1px solid var(--vp-c-divider-light);
-}
-
-.VPSidebarItem .text {
-  font-size: 0.875rem;
-}
-
-/* Hero */
-.VPHero .name {
-  font-weight: 500;
-  background: none;
-  -webkit-background-clip: unset;
-  background-clip: unset;
-  -webkit-text-fill-color: var(--vp-c-text-1);
-}
-
-.VPHero .text {
-  font-weight: 400;
+.vp-doc td {
   color: var(--vp-c-text-2);
 }
 
-.VPHero .tagline {
+/* Blockquotes */
+.vp-doc blockquote {
+  border-left: 2px solid var(--vp-c-divider);
+  color: var(--vp-c-text-3);
+  font-size: 14px;
+}
+
+/* ============================================
+   FOOTER - Subtle
+   ============================================ */
+.VPDocFooter .edit-link-button {
+  font-size: 12px;
   color: var(--vp-c-text-3);
 }
 
-/* Feature cards */
-.VPFeature {
-  border: 1px solid var(--vp-c-divider-light);
-  background: var(--vp-c-bg-alt);
+.VPDocFooter .pager-link .title {
+  font-size: 13px;
 }
 
-.VPFeature:hover {
-  border-color: var(--vp-c-divider);
-}
-
-.VPFeature .title {
-  font-weight: 500;
-  font-size: 0.9375rem;
-}
-
-.VPFeature .details {
-  font-size: 0.8125rem;
-  color: var(--vp-c-text-3);
-}
-
-/* Search */
-.VPNavBarSearch .DocSearch-Button {
-  background: var(--vp-c-bg-soft);
-}
-
-/* Remove default brand gradient */
-.VPButton.brand {
-  border: none;
-}
-
-/* Alt button */
-.VPButton.alt {
-  border: 1px solid var(--vp-c-divider);
-  background: transparent;
-}
-
-.VPButton.alt:hover {
-  border-color: var(--vp-c-text-3);
+.VPDocFooter .pager-link .desc {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }

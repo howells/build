@@ -1,0 +1,7224 @@
+# Build — Stack Reference
+> How Daniel Howells builds software. Personal development reference distilled from 15 active projects.
+> Source: https://github.com/howells/docs
+> Website: https://build.danielhowells.com
+
+## Table of Contents
+
+- stack-overview.md
+- version-requirements.md
+- new-project-checklist.md
+- production-checklist.md
+- project-structure.md
+- dependencies.md
+- scripts.md
+- ruler.md
+- integrations/clerk-auth.md
+- integrations/drizzle-neon.md
+- integrations/trpc.md
+- integrations/env-validation.md
+- integrations/zustand.md
+- integrations/forms.md
+- integrations/resend-email.md
+- integrations/openrouter.md
+- integrations/fal-ai.md
+- integrations/voyage-embeddings.md
+- integrations/uploadthing.md
+- integrations/biome-ultracite.md
+- rules/code-style.md
+- rules/typescript.md
+- rules/react.md
+- rules/nextjs.md
+- rules/tailwind.md
+- rules/git.md
+- rules/testing.md
+- rules/env.md
+- rules/turborepo.md
+- rules/integrations.md
+- rules/interface/typography.md
+- rules/interface/animation.md
+- rules/interface/forms.md
+- rules/interface/interactions.md
+- rules/interface/layout.md
+- rules/interface/design.md
+- rules/interface/performance.md
+- rules/interface/content-accessibility.md
+
+---
+
+
+
+================================================================================
+## stack-overview.md
+================================================================================
+
+# Stack Overview
+
+Current production stack as of January 2026, extracted from 15 active projects.
+
+## Core Framework
+
+| Layer | Technology | Version | Notes |
+|-------|------------|---------|-------|
+| Framework | Next.js | 16.1.x | App Router, Server Components |
+| React | React | 19.2.x | ref-as-prop, no forwardRef |
+| Language | TypeScript | 5.9.x | Strict mode |
+| Runtime | Node.js | >=20.9.0 | Required for Next.js 16 |
+
+## Styling
+
+| Tool | Version | Notes |
+|------|---------|-------|
+| Tailwind CSS | 4.x | Config-free, PostCSS only |
+| @tailwindcss/postcss | 4.x | Required PostCSS plugin |
+| tailwind-merge | 3.x | Class merging utility |
+| tw-animate-css | 1.x | Animation utilities |
+| class-variance-authority | 0.7.x | Component variants |
+| clsx | 2.x | Conditional classes |
+
+### Tailwind v4 Key Changes
+- No `tailwind.config.js`—use CSS-based config
+- Use `@source` directives for content paths
+- PostCSS plugin: `@tailwindcss/postcss`
+- Use `gray-*` palette only (not slate/zinc/neutral)
+
+## Database
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Drizzle ORM | 0.45.x | Type-safe ORM |
+| drizzle-kit | 0.31.x | Migrations/studio |
+| @neondatabase/serverless | 1.x | Serverless PostgreSQL |
+| postgres | 3.x | Node PostgreSQL driver |
+
+### Alternative: Supabase
+Some projects use `@supabase/supabase-js` + `@supabase/ssr` instead of Neon.
+
+## Authentication
+
+| Tool | Version | Notes |
+|------|---------|-------|
+| @clerk/nextjs | 6.x | Primary auth solution |
+| @clerk/testing | 1.x | Test utilities |
+| better-auth | 1.x | Alternative (throughline) |
+
+## API Layer
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| @trpc/server | 11.x | Type-safe API |
+| @trpc/client | 11.x | Client bindings |
+| @trpc/tanstack-react-query | 11.x | React integration (new projects) |
+| zod | 4.x | Schema validation |
+| superjson | 2.x | Serialization |
+
+## Data Fetching
+
+| Tool | Version | Notes |
+|------|---------|-------|
+| @tanstack/react-query | 5.90.x | Server state |
+| @tanstack/react-query-devtools | 5.x | Dev tools |
+
+## UI Components
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| @base-ui/react | 1.x | Unstyled primitives (preferred) |
+| @radix-ui/* | Various | Accessible primitives (legacy) |
+| shadcn | 3.x | Component scaffolding |
+| lucide-react | 0.56x | Icons |
+| sonner | 2.x | Toasts |
+| cmdk | 1.x | Command palette |
+| vaul | 1.x | Drawer component |
+
+### Component Strategy
+
+**Use shadcn for scaffolding, prefer Base UI primitives.**
+
+shadcn generates component code into your project—you own and customize it. When adding components:
+
+1. **Check Base UI first** — Base UI components are unstyled and more flexible than Radix
+2. **Fall back to Radix** — Only when Base UI doesn't have the primitive you need
+3. **Customize freely** — shadcn components are yours to modify, not a dependency
+
+Base UI advantages over Radix:
+- Truly unstyled (no CSS reset battles)
+- More composable API
+- Smaller bundle size
+- Better TypeScript inference
+
+Example: For a new dropdown, use `@base-ui/react` Menu instead of `@radix-ui/react-dropdown-menu`.
+
+## Animation
+
+| Tool | Version | Notes |
+|------|---------|-------|
+| framer-motion | 12.x | Full animation library |
+| motion | 12.x | Lighter alternative |
+
+## AI/ML
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| ai (Vercel AI SDK) | 6.x | AI integration |
+| @openrouter/ai-sdk-provider | 1.x | Multi-model routing |
+| @fal-ai/client | 1.x | Image generation |
+| voyage-ai-provider | 3.x | Embeddings |
+
+### Default Models
+
+| Use Case | Model | Provider |
+|----------|-------|----------|
+| Text/Chat | `google/gemini-2.5-flash` | OpenRouter |
+| Image Generation | `fal-ai/gpt-image-1.5` | fal.ai |
+| Image Generation (alt) | `fal-ai/gemini-25-flash-image` | fal.ai |
+| Text Embeddings | `voyage-3-large` | Voyage AI |
+| Image Embeddings | `voyage-multimodal-3` | Voyage AI |
+
+## Code Quality
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| @biomejs/biome | 2.3.x | Formatting + linting |
+| ultracite | 7.x | Biome preset |
+| husky | 9.x | Git hooks |
+| lint-staged | 16.x | Staged file linting |
+| knip | 5.x | Unused code detection |
+
+## Testing
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| @playwright/test | 1.57.x | E2E testing |
+| vitest | 4.x | Unit testing |
+| @testing-library/react | 16.x | Component testing |
+| jsdom | 27.x | DOM environment |
+
+## Build Tools
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| turbo | 2.7.x | Monorepo orchestration |
+| tsx | 4.x | TypeScript execution |
+| tsdown | 0.15.x | Package bundling |
+
+## File Uploads
+
+| Tool | Version | Notes |
+|------|---------|-------|
+| uploadthing | 7.x | File upload service |
+| @uploadthing/react | 7.x | React components |
+
+## Misc Utilities
+
+| Tool | Purpose |
+|------|---------|
+| nanoid | ID generation |
+| dotenv / dotenv-cli | Environment variables |
+| next-themes | Theme switching |
+| zustand | Client state (when needed) |
+
+
+================================================================================
+## version-requirements.md
+================================================================================
+
+# Version Requirements
+
+Minimum and mandatory versions for new projects as of January 2026.
+
+## Mandatory Versions (Non-Negotiable)
+
+These versions are **required** for all new projects. Do not use older versions.
+
+| Package | Minimum | Current | Rationale |
+|---------|---------|---------|-----------|
+| next | **16.0.0** | 16.1.x | Turbopack stable, improved caching, React 19 support |
+| react | **19.0.0** | 19.2.x | ref-as-prop, no forwardRef, use() hook |
+| typescript | **5.8.0** | 5.9.x | Improved inference, config inheritance |
+| node | **20.9.0** | 22.x | Required by Next.js 16 |
+| tailwindcss | **4.0.0** | 4.1.x | Config-free, CSS-first, smaller bundles |
+| @biomejs/biome | **2.0.0** | 2.3.x | ESLint/Prettier replacement |
+| zod | **4.0.0** | 4.x | Breaking changes from v3, better inference |
+| @tanstack/react-query | **5.0.0** | 5.90.x | Suspense-first, streaming |
+| @trpc/server | **11.0.0** | 11.x | Breaking API changes from v10 |
+
+## Breaking Changes to Know
+
+### Next.js 15 → 16
+- `next/headers` and `next/cookies` are now async (must await)
+- `params` and `searchParams` in page/layout are now Promises
+- Turbopack is default for dev (`next dev` uses Turbopack)
+- New `next.config.ts` support (TypeScript config)
+- **`proxy.ts` replaces `middleware.ts`** - Security-driven rename, Node.js runtime only
+- **`use cache` directive** - New explicit opt-in caching model
+- Edge runtime removed for proxy functions
+
+```tsx
+// Old (Next 15)
+export default function Page({ params }: { params: { id: string } }) {
+  return <div>{params.id}</div>
+}
+
+// New (Next 16)
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  return <div>{id}</div>
+}
+```
+
+### React 18 → 19
+- No more `forwardRef`—ref is a regular prop
+- `use()` hook for reading promises and context
+- Actions for form handling (`useActionState`, `useFormStatus`)
+- `<Context>` replaces `<Context.Provider>`
+
+```tsx
+// Old (React 18)
+const Input = forwardRef<HTMLInputElement, Props>((props, ref) => (
+  <input ref={ref} {...props} />
+))
+
+// New (React 19)
+function Input({ ref, ...props }: Props & { ref?: React.Ref<HTMLInputElement> }) {
+  return <input ref={ref} {...props} />
+}
+```
+
+### Tailwind v3 → v4
+- No `tailwind.config.js`—all config in CSS
+- Use `@theme` for design tokens, `@source` for content paths
+- PostCSS plugin changed to `@tailwindcss/postcss`
+- Only `gray-*` palette (not slate/zinc/neutral)
+- Native CSS cascade layers
+
+```css
+/* app/globals.css - Tailwind v4 */
+@import 'tailwindcss';
+
+@source '../components/**/*.tsx';
+@source '../app/**/*.tsx';
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --color-primary: oklch(0.7 0.15 250);
+}
+```
+
+### Zod 3 → 4
+- `z.interface()` for key-optional vs value-optional distinction
+- Recursive types with getters (no more `z.lazy()` workarounds)
+- Unified error customization API
+- Breaking: `.catch()` and `.default()` on optional properties always return caught values
+
+```ts
+// Zod 4 key optionality
+const schema = z.interface({
+  "name?": z.string(),         // key optional: { name?: string }
+  email: z.string().optional() // value optional: { email: string | undefined }
+});
+
+// Recursive types with getters
+const Category = z.interface({
+  name: z.string(),
+  get subcategories() {
+    return z.array(Category);
+  },
+});
+```
+
+### tRPC 10 → 11
+- New `initTRPC` API
+- React Query 5 integration required
+- Simplified client setup
+- Breaking: procedure builder changes
+
+## Recommended Versions (Strongly Preferred)
+
+| Package | Version | Notes |
+|---------|---------|-------|
+| turbo | 2.7+ | Improved caching |
+| drizzle-orm | 0.45+ | Latest schema API |
+| @clerk/nextjs | 6+ | Next.js 16 support |
+| framer-motion | 12+ | Smaller bundle, new API |
+| playwright | 1.57+ | Latest browser engines |
+| vitest | 4+ | Faster, better ESM |
+
+## Version Checking Commands
+
+```bash
+# Check outdated packages
+pnpm outdated
+
+# Update all packages interactively
+pnpm update -i --latest
+
+# Check specific package version
+pnpm why next
+
+# Audit for vulnerabilities
+pnpm audit
+```
+
+## Package.json Template
+
+```json
+{
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "packageManager": "pnpm@10.11.0"
+}
+```
+
+## Upgrading Existing Projects
+
+Priority order for upgrades:
+
+1. **React 19** - Foundation for everything else
+2. **Next.js 16** - Requires React 19
+3. **Tailwind v4** - Independent, can do anytime
+4. **Zod 4** - May require schema updates
+5. **tRPC 11** - Requires Zod 4, React Query 5
+
+### Codemod for Next.js Upgrade
+
+```bash
+# Run Next.js codemods (includes middleware → proxy.ts migration)
+npx @next/codemod@latest upgrade latest
+```
+
+### Codemod for React 19
+
+```bash
+# Remove forwardRef usage
+npx codemod react/19/replace-forward-ref
+```
+
+
+================================================================================
+## new-project-checklist.md
+================================================================================
+
+# New Project Checklist
+
+Quick-start guide for bootstrapping a new project with your standard stack.
+
+## Decision: Monorepo or Single App?
+
+| Criteria | Single App | Monorepo |
+|----------|------------|----------|
+| Timeline | Fast prototype | Long-term project |
+| Sharing | No code sharing needed | Multiple apps or packages |
+| Team | Solo or small team | Larger team or future growth |
+| Complexity | Simple domain | Complex domain |
+
+## Option A: Single App (Fastest Start)
+
+### 1. Create Next.js App
+
+```bash
+pnpm create next-app@latest project-name --typescript --tailwind --app --src-dir --import-alias "@/*"
+cd project-name
+```
+
+### 2. Install Core Dependencies
+
+```bash
+# Styling
+pnpm add tailwind-merge class-variance-authority clsx tw-animate-css
+pnpm add -D @tailwindcss/postcss@4
+
+# Database
+pnpm add drizzle-orm @neondatabase/serverless
+pnpm add -D drizzle-kit
+
+# Auth
+pnpm add @clerk/nextjs
+
+# Data fetching
+pnpm add @tanstack/react-query zod
+
+# UI
+pnpm add @base-ui/react lucide-react shadcn
+
+# Code quality
+pnpm add -D @biomejs/biome ultracite husky lint-staged @playwright/test vitest
+```
+
+### 3. Configure Biome
+
+```bash
+pnpm exec ultracite init
+```
+
+Or create `biome.json`:
+
+```json
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.5/schema.json",
+  "extends": ["ultracite"]
+}
+```
+
+### 4. Setup Pre-commit Hooks
+
+```bash
+pnpm add -D husky lint-staged
+pnpm exec husky init
+```
+
+Update `package.json`:
+
+```json
+{
+  "scripts": {
+    "prepare": "husky",
+    "typecheck": "tsc --noEmit"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": ["pnpm exec ultracite fix"],
+    "*.{json,jsonc,css,md,mdx}": ["pnpm exec biome format --write"]
+  }
+}
+```
+
+Update `.husky/pre-commit`:
+
+```bash
+#!/bin/sh
+pnpm lint-staged
+pnpm typecheck
+```
+
+### 5. Configure Tailwind v4
+
+Create `postcss.config.mjs`:
+
+```js
+export default {
+  plugins: {
+    "@tailwindcss/postcss": {}
+  }
+};
+```
+
+Update `src/app/globals.css`:
+
+```css
+@import "tailwindcss";
+
+@source "../**/*.{ts,tsx}";
+```
+
+### 6. Configure Drizzle
+
+Create `drizzle.config.ts`:
+
+```ts
+import { defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+  schema: "./src/db/schema.ts",
+  out: "./drizzle",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL!,
+  },
+});
+```
+
+### 7. Add Scripts
+
+Update `package.json`:
+
+```json
+{
+  "scripts": {
+    "dev": "next dev --turbopack --port 4000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome check src --write",
+    "format": "biome format src --write",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  }
+}
+```
+
+### 8. Environment Variables
+
+Create `.env.local`:
+
+```bash
+DATABASE_URL=postgresql://...
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_...
+CLERK_SECRET_KEY=sk_...
+```
+
+---
+
+## Option B: Monorepo (Better-T-Stack)
+
+The fastest way to scaffold a monorepo with your preferred stack:
+
+```bash
+bunx create-better-t-stack project-name
+```
+
+Select options:
+- Database: Neon + Drizzle
+- Auth: Clerk
+- API: tRPC
+- Linting: Ultracite
+- Other: Turborepo
+
+### Post-Setup
+
+```bash
+cd project-name
+bun install
+bun run db:push
+bun run dev
+```
+
+---
+
+## File Templates
+
+### CLAUDE.md (Project Rules)
+
+Create at project root—this tells AI assistants your conventions:
+
+```markdown
+# Project Rules
+
+## Code Style
+- Use Biome for formatting (no Prettier)
+- Use double quotes, semicolons, trailing commas
+- Prefer `for...of` over `.forEach()`
+- Use kebab-case filenames
+
+## Canonical Code Principle
+- No backward compatibility layers
+- Update ALL usage sites when changing patterns
+- The current code IS the way
+
+## TypeScript
+- Use `interface` for objects, `type` for unions
+- Never use `any`—prefer `unknown` with narrowing
+- Use `import type` for type-only imports
+
+## React
+- Server Components by default
+- Extract business logic to hooks
+- Use @base-ui/react primitives
+- Use ref-as-prop (React 19)
+
+## Database
+- Drizzle ORM + drizzle-kit
+- `db:push` for development
+- `db:generate` + `db:migrate` for production
+
+## Testing
+- Playwright for E2E
+- Vitest for unit tests
+- Run tests before merging
+```
+
+### .gitignore Additions
+
+```gitignore
+# Environment
+.env
+.env.local
+.env*.local
+
+# Drizzle
+drizzle/
+
+# Turbo
+.turbo
+
+# Next.js
+.next/
+
+# Testing
+playwright-report/
+test-results/
+```
+
+### tsconfig.json Paths
+
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
+---
+
+## Verification Checklist
+
+Before starting development:
+
+- [ ] `pnpm dev` starts without errors
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] Pre-commit hooks work (make a test commit)
+- [ ] Database connection works (`pnpm db:studio`)
+- [ ] Auth flow works (sign in/out)
+- [ ] CLAUDE.md created with project rules
+
+---
+
+## Updating Existing Projects
+
+### Upgrade to Tailwind v4
+
+1. Update dependencies:
+```bash
+pnpm add -D tailwindcss@4 @tailwindcss/postcss@4
+```
+
+2. Replace `tailwind.config.js` with CSS config in `globals.css`:
+```css
+@import "tailwindcss";
+@source "../**/*.{ts,tsx}";
+```
+
+3. Update PostCSS config:
+```js
+export default {
+  plugins: {
+    "@tailwindcss/postcss": {}
+  }
+};
+```
+
+4. Remove old config files:
+```bash
+rm tailwind.config.js tailwind.config.ts
+```
+
+### Upgrade to React 19
+
+1. Update dependencies:
+```bash
+pnpm add react@19 react-dom@19
+pnpm add -D @types/react@19 @types/react-dom@19
+```
+
+2. Replace `forwardRef` with ref-as-prop:
+```tsx
+// Before
+const Button = forwardRef<HTMLButtonElement, Props>((props, ref) => {
+  return <button ref={ref} {...props} />;
+});
+
+// After
+function Button({ ref, ...props }: Props & { ref?: React.Ref<HTMLButtonElement> }) {
+  return <button ref={ref} {...props} />;
+}
+```
+
+### Switch from ESLint/Prettier to Biome
+
+1. Install:
+```bash
+pnpm add -D @biomejs/biome ultracite
+pnpm remove eslint prettier eslint-config-next @typescript-eslint/*
+```
+
+2. Initialize:
+```bash
+pnpm exec ultracite init
+```
+
+3. Update scripts:
+```json
+{
+  "lint": "biome check src --write",
+  "format": "biome format src --write"
+}
+```
+
+4. Remove old configs:
+```bash
+rm .eslintrc* .prettierrc* eslint.config.*
+```
+
+
+================================================================================
+## production-checklist.md
+================================================================================
+
+# Production Checklist
+
+Everything needed to launch a Next.js app to production. Use this as a checklist before each deployment.
+
+## Quick Reference
+
+| Category | Files to Create/Check |
+|----------|----------------------|
+| SEO | `sitemap.ts`, `robots.ts`, `manifest.ts` |
+| Metadata | `layout.tsx` (OpenGraph, Twitter, JSON-LD) |
+| Assets | `favicon.ico`, `icon.svg`, `apple-touch-icon.png`, `og-image.png` |
+| Feeds | `feed.xml/route.ts` |
+| Analytics | PostHog provider, env vars |
+| Deployment | `vercel.json`, env vars in dashboard |
+
+---
+
+## 1. Favicons & App Icons
+
+### Required Files
+
+Place in `app/` directory (App Router serves them automatically):
+
+```
+app/
+├── favicon.ico          # 32x32 ICO (legacy browsers)
+├── icon.svg             # Scalable favicon (modern browsers)
+├── icon.png             # 512x512 PNG fallback
+├── apple-touch-icon.png # 180x180 PNG (iOS home screen)
+└── og-image.png         # 1200x630 PNG (social sharing default)
+```
+
+### Web App Manifest
+
+```ts
+// app/manifest.ts
+import type { MetadataRoute } from "next";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "App Name",
+    short_name: "App",
+    description: "App description",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#ffffff",
+    theme_color: "#000000",
+    icons: [
+      {
+        src: "/icon.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
+      {
+        src: "/icon.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+    ],
+  };
+}
+```
+
+### Icon Generation
+
+Use a single SVG source and generate all sizes:
+
+```bash
+# From SVG to required formats (using ImageMagick)
+convert icon.svg -resize 32x32 favicon.ico
+convert icon.svg -resize 180x180 apple-touch-icon.png
+convert icon.svg -resize 512x512 icon.png
+```
+
+Or use [RealFaviconGenerator](https://realfavicongenerator.net/) for comprehensive icon sets.
+
+---
+
+## 2. Metadata & OpenGraph
+
+### Root Layout Metadata
+
+```tsx
+// app/layout.tsx
+import type { Metadata } from "next";
+
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://example.com";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: "Site Name",
+    template: "%s | Site Name",
+  },
+  description: "Site description for search engines",
+  keywords: ["keyword1", "keyword2"],
+  authors: [{ name: "Author Name" }],
+  creator: "Creator Name",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: baseUrl,
+    siteName: "Site Name",
+    title: "Site Name",
+    description: "Site description for social sharing",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Site Name",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Site Name",
+    description: "Site description for Twitter",
+    images: ["/og-image.png"],
+    creator: "@twitterhandle",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: baseUrl,
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
+};
+```
+
+### Dynamic Page Metadata
+
+```tsx
+// app/[slug]/page.tsx
+import type { Metadata } from "next";
+
+interface Props {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const item = await getItemBySlug(slug);
+
+  if (!item) return {};
+
+  return {
+    title: item.title,
+    description: item.description.slice(0, 160),
+    openGraph: {
+      title: item.title,
+      description: item.description.slice(0, 160),
+      url: `/item/${slug}`,
+      images: item.image ? [{ url: item.image }] : [],
+    },
+  };
+}
+```
+
+---
+
+## 3. JSON-LD Structured Data
+
+JSON-LD is injected as a script tag in the document. Since the content is generated server-side from trusted database values (not user input), this is safe.
+
+### Helper Component
+
+```tsx
+// components/json-ld.tsx
+interface JsonLdProps {
+  data: Record<string, unknown>;
+}
+
+export function JsonLd({ data }: JsonLdProps) {
+  return (
+    <script
+      type="application/ld+json"
+      // Safe: content is server-generated from trusted database values
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}
+```
+
+### Organization Schema (Root Layout)
+
+```tsx
+// app/layout.tsx
+import { JsonLd } from "@/components/json-ld";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const organizationData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Company Name",
+    url: "https://example.com",
+    logo: "https://example.com/logo.png",
+    sameAs: [
+      "https://twitter.com/handle",
+      "https://github.com/handle",
+    ],
+  };
+
+  return (
+    <html lang="en">
+      <head>
+        <JsonLd data={organizationData} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+### Article Schema (Blog Posts)
+
+```tsx
+// app/blog/[slug]/page.tsx
+import { JsonLd } from "@/components/json-ld";
+
+export default async function BlogPost({ params }: Props) {
+  const { slug } = await params;
+  const post = await getPost(slug);
+
+  const articleData = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    image: post.image,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    author: {
+      "@type": "Person",
+      name: post.author.name,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Site Name",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://example.com/logo.png",
+      },
+    },
+  };
+
+  return (
+    <>
+      <JsonLd data={articleData} />
+      <article>{/* content */}</article>
+    </>
+  );
+}
+```
+
+### Product Schema (E-commerce)
+
+```tsx
+const productData = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: product.name,
+  description: product.description,
+  image: product.images,
+  offers: {
+    "@type": "Offer",
+    price: product.price,
+    priceCurrency: "USD",
+    availability: "https://schema.org/InStock",
+  },
+};
+```
+
+### BreadcrumbList Schema
+
+```tsx
+const breadcrumbData = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://example.com" },
+    { "@type": "ListItem", position: 2, name: "Blog", item: "https://example.com/blog" },
+    { "@type": "ListItem", position: 3, name: post.title },
+  ],
+};
+```
+
+---
+
+## 4. Sitemap & Robots
+
+### Dynamic Sitemap
+
+```ts
+// app/sitemap.ts
+import type { MetadataRoute } from "next";
+import { db } from "@/db";
+
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://example.com";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Static pages
+  const staticPages: MetadataRoute.Sitemap = [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+  ];
+
+  // Dynamic pages from database
+  const items = await db.query.items.findMany({
+    columns: { slug: true, updatedAt: true },
+  });
+
+  const dynamicPages: MetadataRoute.Sitemap = items.map((item) => ({
+    url: `${baseUrl}/item/${item.slug}`,
+    lastModified: item.updatedAt,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...dynamicPages];
+}
+```
+
+### Robots.txt
+
+```ts
+// app/robots.ts
+import type { MetadataRoute } from "next";
+
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://example.com";
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/api/", "/admin/", "/private/"],
+      },
+    ],
+    sitemap: `${baseUrl}/sitemap.xml`,
+  };
+}
+```
+
+---
+
+## 5. RSS Feed
+
+```ts
+// app/feed.xml/route.ts
+import { db } from "@/db";
+
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://example.com";
+
+export async function GET() {
+  const items = await db.query.items.findMany({
+    orderBy: (items, { desc }) => [desc(items.createdAt)],
+    limit: 20,
+  });
+
+  const escapeXml = (text: string) =>
+    text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+  const feed = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Site Name</title>
+    <link>${baseUrl}</link>
+    <description>Site description</description>
+    <language>en-us</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <atom:link href="${baseUrl}/feed.xml" rel="self" type="application/rss+xml"/>
+    ${items
+      .map(
+        (item) => `
+    <item>
+      <title>${escapeXml(item.title)}</title>
+      <link>${baseUrl}/item/${item.slug}</link>
+      <guid isPermaLink="true">${baseUrl}/item/${item.slug}</guid>
+      <pubDate>${new Date(item.createdAt).toUTCString()}</pubDate>
+      <description>${escapeXml(item.description)}</description>
+    </item>`
+      )
+      .join("")}
+  </channel>
+</rss>`;
+
+  return new Response(feed, {
+    headers: {
+      "Content-Type": "application/rss+xml",
+      "Cache-Control": "public, max-age=3600",
+    },
+  });
+}
+```
+
+Add RSS discovery to layout metadata:
+
+```tsx
+// In metadata alternates
+alternates: {
+  types: {
+    "application/rss+xml": "/feed.xml",
+  },
+},
+```
+
+---
+
+## 6. Analytics (PostHog)
+
+### Installation
+
+```bash
+pnpm add posthog-js
+```
+
+### Provider Setup
+
+```tsx
+// app/providers.tsx
+"use client";
+
+import posthog from "posthog-js";
+import { PostHogProvider as PHProvider } from "posthog-js/react";
+import { useEffect } from "react";
+
+export function PostHogProvider({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+      posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+        api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+        person_profiles: "identified_only",
+        capture_pageview: false, // We'll capture manually for SPA
+        capture_pageleave: true,
+      });
+    }
+  }, []);
+
+  return <PHProvider client={posthog}>{children}</PHProvider>;
+}
+```
+
+### Page View Tracking
+
+```tsx
+// components/posthog-pageview.tsx
+"use client";
+
+import { usePathname, useSearchParams } from "next/navigation";
+import posthog from "posthog-js";
+import { useEffect } from "react";
+
+export function PostHogPageView() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (pathname && posthog) {
+      let url = window.origin + pathname;
+      if (searchParams.toString()) {
+        url += `?${searchParams.toString()}`;
+      }
+      posthog.capture("$pageview", { $current_url: url });
+    }
+  }, [pathname, searchParams]);
+
+  return null;
+}
+```
+
+### Environment Variables
+
+```bash
+NEXT_PUBLIC_POSTHOG_KEY=phc_...
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+```
+
+### User Identification
+
+```tsx
+// After successful auth
+import posthog from "posthog-js";
+
+posthog.identify(user.id, {
+  email: user.email,
+  name: user.name,
+});
+
+// On logout
+posthog.reset();
+```
+
+---
+
+## 7. Error Tracking (Sentry)
+
+### Installation
+
+```bash
+pnpm add @sentry/nextjs
+npx @sentry/wizard@latest -i nextjs
+```
+
+### Configuration
+
+The wizard creates necessary files. Key settings in `sentry.client.config.ts`:
+
+```ts
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  tracesSampleRate: 0.1, // 10% of transactions
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+});
+```
+
+---
+
+## 8. Vercel Configuration
+
+### vercel.json
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/daily",
+      "schedule": "0 7 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Cron Security
+
+```ts
+// app/api/cron/daily/route.ts
+export async function GET(request: Request) {
+  const authHeader = request.headers.get("Authorization");
+
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  // Cron logic here
+  return Response.json({ success: true });
+}
+```
+
+---
+
+## 9. Environment Variables
+
+### Required for Production
+
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `NEXT_PUBLIC_BASE_URL` | Canonical site URL |
+| `CRON_SECRET` | Vercel cron authentication |
+
+### Analytics & Monitoring
+
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project key |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog API host |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry error tracking |
+| `SENTRY_AUTH_TOKEN` | Sentry source maps |
+
+### Third-Party Services
+
+| Variable | Purpose |
+|----------|---------|
+| `OPENROUTER_API_KEY` | AI model access |
+| `FAL_KEY` | Image generation |
+| `VOYAGE_API_KEY` | Embeddings |
+| `CLERK_SECRET_KEY` | Auth (server) |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Auth (client) |
+
+---
+
+## 10. Pre-Launch Checklist
+
+### SEO & Discovery
+
+- [ ] `favicon.ico` exists and displays correctly
+- [ ] `apple-touch-icon.png` exists (180x180)
+- [ ] `og-image.png` exists (1200x630)
+- [ ] `manifest.ts` configured for PWA
+- [ ] `sitemap.ts` includes all public pages
+- [ ] `robots.ts` allows crawling, blocks private routes
+- [ ] Root metadata has title, description, OpenGraph
+- [ ] Dynamic pages have unique metadata
+- [ ] JSON-LD on key pages (Organization, Article, Product)
+- [ ] RSS feed validates at `/feed.xml`
+- [ ] Canonical URLs set correctly
+
+### Performance
+
+- [ ] Images use `next/image` with proper sizing
+- [ ] Fonts use `next/font` (no layout shift)
+- [ ] Above-fold images have `priority`
+- [ ] Lighthouse score > 90 (Performance, SEO, Accessibility)
+- [ ] Core Web Vitals pass (LCP < 2.5s, FID < 100ms, CLS < 0.1)
+
+### Security
+
+- [ ] Security headers configured
+- [ ] No secrets in client-side code
+- [ ] CRON_SECRET set for cron endpoints
+- [ ] CSP headers if applicable
+- [ ] Rate limiting on API routes
+
+### Analytics & Monitoring
+
+- [ ] PostHog initialized and tracking pageviews
+- [ ] User identification on auth
+- [ ] Sentry configured for error tracking
+- [ ] Source maps uploaded to Sentry
+
+### Deployment
+
+- [ ] All environment variables set in Vercel
+- [ ] Production database connected
+- [ ] Domain configured with SSL
+- [ ] Cron jobs scheduled in vercel.json
+- [ ] Preview deployments working
+
+### Testing
+
+- [ ] E2E tests pass in CI
+- [ ] Critical user flows tested
+- [ ] Mobile responsive verified
+- [ ] Cross-browser tested (Chrome, Safari, Firefox)
+
+---
+
+## Tools & Validators
+
+| Tool | URL | Purpose |
+|------|-----|---------|
+| Google Rich Results | https://search.google.com/test/rich-results | JSON-LD validation |
+| Facebook Sharing Debugger | https://developers.facebook.com/tools/debug/ | OpenGraph preview |
+| Twitter Card Validator | https://cards-dev.twitter.com/validator | Twitter preview |
+| Lighthouse | Chrome DevTools | Performance audit |
+| W3C Feed Validator | https://validator.w3.org/feed/ | RSS validation |
+| RealFaviconGenerator | https://realfavicongenerator.net/ | Favicon generation |
+
+
+================================================================================
+## project-structure.md
+================================================================================
+
+# Project Structure Patterns
+
+Two patterns emerge across your projects: **monorepos** (Turborepo) and **single apps**.
+
+## Decision Matrix
+
+| Use Case | Pattern | Example Projects |
+|----------|---------|------------------|
+| Multiple apps sharing code | Monorepo | kinecho, materia, blomma |
+| Single app with internal packages | Monorepo | throughline, beacon |
+| Standalone app, no code sharing | Single App | notiflow, reccs, faceplacer |
+| Rapid prototype | Single App | Start here, extract later |
+
+## Monorepo Structure (Turborepo + pnpm)
+
+```
+project/
+├── apps/
+│   ├── web/                    # Main Next.js app
+│   │   ├── app/                # App Router
+│   │   ├── components/         # App-specific components
+│   │   ├── features/           # Feature modules
+│   │   └── package.json
+│   ├── admin/                  # Admin app (optional)
+│   └── api/                    # Standalone API (optional)
+├── packages/
+│   ├── db/                     # Drizzle schema + queries
+│   ├── auth/                   # Auth logic
+│   ├── api/                    # tRPC routers
+│   ├── env/                    # Environment validation
+│   ├── ui/                     # Shared components
+│   ├── utils/                  # Shared utilities
+│   ├── config/                 # Shared configs
+│   └── typescript-config/      # TSConfig presets
+├── turbo.json
+├── pnpm-workspace.yaml
+└── package.json
+```
+
+### Root package.json (Monorepo)
+
+```json
+{
+  "name": "project-name",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint && biome check .",
+    "format": "ultracite fix",
+    "typecheck": "turbo run typecheck",
+    "db:push": "pnpm --filter @project/db db:push",
+    "db:studio": "pnpm --filter @project/db db:studio"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.10",
+    "turbo": "^2.7.2",
+    "typescript": "5.9.3",
+    "ultracite": "^7.0.0"
+  },
+  "packageManager": "pnpm@10.23.0",
+  "engines": {
+    "node": ">=20.19"
+  }
+}
+```
+
+### pnpm-workspace.yaml
+
+```yaml
+packages:
+  - "apps/*"
+  - "packages/*"
+```
+
+### turbo.json
+
+```json
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    }
+  }
+}
+```
+
+### Workspace References
+
+In app package.json:
+```json
+{
+  "dependencies": {
+    "@project/db": "workspace:*",
+    "@project/auth": "workspace:*",
+    "@project/env": "workspace:*"
+  }
+}
+```
+
+## Single App Structure
+
+```
+project/
+├── src/
+│   ├── app/                    # App Router
+│   ├── components/             # UI components
+│   ├── db/                     # Drizzle schema
+│   ├── lib/                    # Utilities
+│   └── server/                 # Server actions
+├── e2e/                        # Playwright tests
+├── drizzle.config.ts
+└── package.json
+```
+
+### Root package.json (Single App)
+
+```json
+{
+  "name": "project-name",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack --port 4000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome check src --write",
+    "format": "biome format src --write",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  }
+}
+```
+
+## Feature Structure (within apps)
+
+For complex features, organize by feature then by kind:
+
+```
+apps/web/features/
+├── dashboard/
+│   ├── components/
+│   │   ├── dashboard-header.tsx
+│   │   └── dashboard-stats.tsx
+│   ├── hooks/
+│   │   └── use-dashboard-data.ts
+│   ├── lib/
+│   │   └── dashboard-utils.ts
+│   └── types.ts
+└── settings/
+    └── ...
+```
+
+## Package Patterns
+
+### Database Package (@project/db)
+
+```
+packages/db/
+├── src/
+│   ├── index.ts                # Exports
+│   ├── client.ts               # Drizzle client
+│   ├── schema/
+│   │   ├── users.ts
+│   │   └── index.ts
+│   └── queries/
+│       └── users.ts
+├── drizzle.config.ts
+└── package.json
+```
+
+### Environment Package (@project/env)
+
+```
+packages/env/
+├── src/
+│   ├── server.ts               # Server-only vars
+│   ├── next.ts                 # Next.js vars (server + client)
+│   └── index.ts
+└── package.json
+```
+
+## Just-in-Time Packages
+
+Export TypeScript source directly—no build step:
+
+```json
+{
+  "name": "@project/utils",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  }
+}
+```
+
+This enables:
+- Instant updates during dev
+- Better source maps
+- Simpler package setup
+
+
+================================================================================
+## dependencies.md
+================================================================================
+
+# Dependencies Reference
+
+Complete dependency list with current versions and installation commands.
+
+## Philosophy
+
+Prefer battle-tested packages over custom implementations:
+
+- **Hooks**: Use `usehooks-ts` instead of writing custom hooks
+- **Utilities**: Use `es-toolkit` instead of lodash (faster, smaller, TypeScript-first)
+- **Dates**: Use `dayjs` (lighter than moment, better than native Date)
+- **Forms**: Use `react-hook-form` + `zod` for validation
+- **State**: Server state with React Query, client state with Zustand
+- **UI**: Headless primitives (Base UI > Radix UI) styled with Tailwind
+- **Animation**: `motion` library for new projects
+
+## Core Dependencies
+
+### Framework
+```bash
+pnpm add next@16.1.1 react@19.2.3 react-dom@19.2.3
+pnpm add -D typescript@5.9.3 @types/node@25 @types/react@19 @types/react-dom@19
+```
+
+### Styling
+```bash
+pnpm add tailwind-merge@3.4.0 class-variance-authority@0.7.1 clsx@2.1.1 tw-animate-css@1.4.0
+pnpm add -D tailwindcss@4 @tailwindcss/postcss@4
+```
+
+### Database (Neon + Drizzle)
+```bash
+pnpm add drizzle-orm@0.45.1 @neondatabase/serverless@1.0.2
+pnpm add -D drizzle-kit@0.31.8
+```
+
+### Database (Supabase + Drizzle)
+```bash
+pnpm add drizzle-orm@0.45.1 postgres@3.4.7 @supabase/supabase-js@2.89.0 @supabase/ssr@0.8.0
+pnpm add -D drizzle-kit@0.31.8
+```
+
+### Authentication (Clerk)
+```bash
+pnpm add @clerk/nextjs@6.36.5
+pnpm add -D @clerk/testing@1.13.26
+```
+
+### API (tRPC)
+
+New projects use `@trpc/tanstack-react-query`. Existing projects may use `@trpc/react-query`.
+
+```bash
+# New projects
+pnpm add @trpc/server@11.5.0 @trpc/client@11.5.0 @trpc/tanstack-react-query@11.5.0 superjson@2.2.2 zod@4.3.4
+
+# Existing projects (classic package)
+pnpm add @trpc/server@11.5.0 @trpc/client@11.5.0 @trpc/react-query@11.5.0 superjson@2.2.2 zod@4.3.4
+```
+
+### Data Fetching
+```bash
+pnpm add @tanstack/react-query@5.90.16
+pnpm add -D @tanstack/react-query-devtools@5.85.5
+```
+
+## UI Components
+
+### Base UI (Unstyled Primitives)
+```bash
+pnpm add @base-ui/react@1.0.0
+```
+
+### Radix UI (Individual Primitives)
+```bash
+pnpm add @radix-ui/react-slot@1.2.4 @radix-ui/react-label@2.1.8 @radix-ui/react-select@2.2.6
+```
+
+### shadcn CLI
+```bash
+pnpm add shadcn@3.6.2
+pnpm dlx shadcn@latest add button card dialog
+```
+
+### Icons
+```bash
+pnpm add lucide-react@0.562.0
+```
+
+### Notifications
+```bash
+pnpm add sonner@2.0.5
+```
+
+### Command Palette
+```bash
+pnpm add cmdk@1.1.1
+```
+
+### Drawer
+```bash
+pnpm add vaul@1.1.2
+```
+
+## Animation
+
+```bash
+# Full library
+pnpm add framer-motion@12.23.26
+
+# Lighter alternative (same API)
+pnpm add motion@12.23.26
+```
+
+## AI/ML
+
+### Vercel AI SDK
+```bash
+pnpm add ai@6.0.5 @ai-sdk/openai@3.0.0
+```
+
+### OpenRouter (Multi-model)
+```bash
+pnpm add @openrouter/ai-sdk-provider@1.5.4
+```
+
+### Image Generation (fal.ai)
+```bash
+pnpm add @fal-ai/client@1.8.1
+```
+
+### Embeddings (Voyage)
+
+Use `voyage-3-large` for text, `voyage-multimodal-3` for images.
+
+```bash
+pnpm add voyage-ai-provider@3.0.0 voyageai@0.1.0
+```
+
+## Code Quality
+
+### Biome + Ultracite
+```bash
+pnpm add -D @biomejs/biome@2.3.10 ultracite@7.0.5
+```
+
+### Git Hooks
+```bash
+pnpm add -D husky@9.1.7 lint-staged@16.2.7
+```
+
+### Dead Code Detection
+```bash
+pnpm add -D knip@5.78.0
+```
+
+## Testing
+
+### E2E (Playwright)
+```bash
+pnpm add -D @playwright/test@1.57.0
+```
+
+### Unit (Vitest)
+```bash
+pnpm add -D vitest@4.0.16 @vitest/ui@4.0.16 @vitejs/plugin-react@5.1.2
+```
+
+### React Testing
+```bash
+pnpm add -D @testing-library/react@16.3.1 @testing-library/dom@10.4.1 jsdom@27.4.0
+```
+
+## Build Tools
+
+### Monorepo
+```bash
+pnpm add -D turbo@2.7.2
+```
+
+### TypeScript Execution
+```bash
+pnpm add -D tsx@4.21.0
+```
+
+### Package Bundling
+```bash
+pnpm add -D tsdown@0.15.12
+```
+
+## File Uploads
+
+```bash
+pnpm add uploadthing@7.7.4 @uploadthing/react@7.3.3
+```
+
+## Payments (Polar)
+
+```bash
+pnpm add @polar-sh/nextjs@0.9.3 @polar-sh/sdk@0.42.1
+```
+
+## Utilities
+
+### ID Generation
+```bash
+pnpm add nanoid@5.1.6
+```
+
+### Environment Variables
+```bash
+pnpm add dotenv@17.2.3
+pnpm add -D dotenv-cli@11.0.0
+```
+
+### Theme Switching
+```bash
+pnpm add next-themes@0.4.6
+```
+
+### Client State
+```bash
+pnpm add zustand@5.0.8
+```
+
+### React Hooks
+```bash
+pnpm add usehooks-ts@3.1.1
+```
+
+Common hooks: `useLocalStorage`, `useMediaQuery`, `useDebounce`, `useCopyToClipboard`, `useWindowSize`, `useEventListener`, `useIntersectionObserver`
+
+### Utility Functions
+```bash
+pnpm add es-toolkit@1.35.1
+```
+
+Modern lodash replacement—2-3x faster, smaller bundle, TypeScript-first. Use for: `debounce`, `throttle`, `groupBy`, `chunk`, `uniq`, `pick`, `omit`, `cloneDeep`, etc.
+
+https://es-toolkit.dev/
+
+### Date/Time
+```bash
+pnpm add dayjs@1.11.15
+```
+
+### Forms
+```bash
+pnpm add react-hook-form@7.56.4 @hookform/resolvers@5.0.1
+```
+
+### Carousels
+```bash
+pnpm add embla-carousel-react@8.7.4
+```
+
+### Markdown Rendering
+```bash
+pnpm add react-markdown@10.1.0 marked@17.0.1
+```
+
+### AI Streaming Markdown
+```bash
+pnpm add streamdown@1.6.10
+```
+
+### Syntax Highlighting
+```bash
+pnpm add shiki@3.20.0
+```
+
+### Flow Diagrams
+```bash
+pnpm add @xyflow/react@12.10.0
+```
+
+### Fuzzy Search
+```bash
+pnpm add fuse.js@7.1.0
+```
+
+### Web Scraping
+```bash
+pnpm add cheerio@1.0.0 scrapingbee@1.7.6
+```
+
+### CSV Parsing
+```bash
+pnpm add papaparse@5.5.3
+pnpm add -D @types/papaparse@5.5.2
+```
+
+## Maps
+
+```bash
+pnpm add mapbox-gl@3.10.0 h3-js@4.2.0
+pnpm add -D @types/mapbox-gl@3.4.0
+```
+
+## Desktop (Tauri)
+
+```bash
+pnpm add -D @tauri-apps/cli@2.4.0
+```
+
+## Version Alignment
+
+When updating, keep these groups aligned:
+
+| Group | Packages |
+|-------|----------|
+| React | react, react-dom, @types/react, @types/react-dom |
+| tRPC | @trpc/server, @trpc/client, @trpc/tanstack-react-query |
+| TanStack | @tanstack/react-query, @tanstack/react-query-devtools |
+| Tailwind | tailwindcss, @tailwindcss/postcss |
+| Drizzle | drizzle-orm, drizzle-kit |
+| AI SDK | ai, @ai-sdk/openai |
+
+## Packages to Avoid
+
+| Package | Reason | Use Instead |
+|---------|--------|-------------|
+| moment | Large bundle, deprecated | dayjs |
+| lodash | Large bundle, not TypeScript-first | es-toolkit |
+| react-use | Less maintained | usehooks-ts |
+| Swiper | Heavy, complex API | embla-carousel |
+| Custom useDebounce | Reinventing the wheel | usehooks-ts or es-toolkit |
+| Custom useLocalStorage | Edge cases handled poorly | usehooks-ts |
+| Custom useMediaQuery | Browser inconsistencies | usehooks-ts |
+
+
+================================================================================
+## scripts.md
+================================================================================
+
+# Standard Scripts
+
+Consistent npm scripts across all projects.
+
+## Development
+
+| Script | Command | Notes |
+|--------|---------|-------|
+| `dev` | `next dev --turbopack --port XXXX` | Single app |
+| `dev` | `turbo run dev --parallel` | Monorepo |
+| `dev:web` | `turbo run dev --filter web` | Specific app |
+| `build` | `next build` or `turbo run build` | Production build |
+| `start` | `next start` | Production server |
+
+### Port Assignments
+
+| Project | Port |
+|---------|------|
+| notiflow | 4000 |
+| reccs | 5001 |
+| populararchive | 7000 |
+| scenes | 8000 |
+| kinecho | 9000 |
+| massiveconnects | 10000 |
+| faceplacer | 11000 |
+| beacon | 12000 |
+| beeline | 13000 |
+| blomma web | 14000 |
+| blomma admin | 14001 |
+| blomma api | 14002 |
+| designround | 15000 |
+| throughline | 16000 |
+
+## Code Quality
+
+| Script | Command | Purpose |
+|--------|---------|---------|
+| `lint` | `biome check src --write` | Lint + autofix |
+| `format` | `biome format src --write` | Format only |
+| `typecheck` | `tsc --noEmit` | Type checking |
+
+### Ultracite (Biome Preset)
+
+```bash
+# Check without fixing
+ultracite check
+
+# Fix all issues
+ultracite fix
+
+# Unsafe fixes (use with care)
+ultracite fix --unsafe
+
+# Diagnose setup
+ultracite doctor
+```
+
+### Monorepo Lint
+
+```json
+{
+  "lint": "turbo run lint && biome check .",
+  "format": "ultracite fix"
+}
+```
+
+## Database (Drizzle)
+
+| Script | Command | Purpose |
+|--------|---------|---------|
+| `db:push` | `drizzle-kit push` | Push schema to DB |
+| `db:studio` | `drizzle-kit studio` | Open Drizzle Studio |
+| `db:generate` | `drizzle-kit generate` | Generate migrations |
+| `db:migrate` | `drizzle-kit migrate` | Run migrations |
+
+### Monorepo Database
+
+```json
+{
+  "db:push": "pnpm --filter @project/db db:push",
+  "db:studio": "pnpm --filter @project/db db:studio"
+}
+```
+
+## Testing
+
+| Script | Command | Purpose |
+|--------|---------|---------|
+| `test` | `vitest run` | Run unit tests |
+| `test:watch` | `vitest` | Watch mode |
+| `test:coverage` | `vitest run --coverage` | With coverage |
+| `test:e2e` | `playwright test` | E2E tests |
+| `test:e2e:ui` | `playwright test --ui` | E2E with UI |
+| `test:e2e:headed` | `playwright test --headed` | Visible browser |
+
+## Git Hooks (Husky + lint-staged)
+
+### Setup
+
+```bash
+pnpm add -D husky lint-staged
+pnpm exec husky init
+```
+
+### package.json
+
+```json
+{
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
+      "bun x ultracite fix"
+    ]
+  }
+}
+```
+
+### .husky/pre-commit
+
+```bash
+pnpm lint-staged
+```
+
+## Monorepo Utilities
+
+| Script | Command | Purpose |
+|--------|---------|---------|
+| `clean` | `git clean -xdf node_modules` | Remove all node_modules |
+| `clean:workspaces` | `turbo clean` | Clean build outputs |
+| `check` | `pnpm typecheck && pnpm lint` | Full check |
+
+### Manypkg (Dependency Consistency)
+
+```bash
+pnpm add -D @manypkg/cli
+```
+
+```json
+{
+  "lint": "turbo run lint && manypkg check"
+}
+```
+
+## Ruler (Code Rules)
+
+Some projects use `ruler` for applying code rules:
+
+```json
+{
+  "rules:apply": "ruler apply --backup=false --nested",
+  "rules:clean": "ruler revert --keep-backups=false"
+}
+```
+
+## Kill Ports (Utility)
+
+For development port conflicts:
+
+```json
+{
+  "kill-ports": "node ./scripts/kill-dev-ports.mjs"
+}
+```
+
+## Full Monorepo Example
+
+```json
+{
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:web": "turbo run dev --filter web",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint && biome check .",
+    "format": "ultracite fix",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "clean": "git clean -xdf node_modules",
+    "db:push": "pnpm --filter @project/db db:push",
+    "db:studio": "pnpm --filter @project/db db:studio",
+    "prepare": "husky"
+  }
+}
+```
+
+## Full Single App Example
+
+```json
+{
+  "scripts": {
+    "dev": "next dev --turbopack --port 4000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome check src --write",
+    "format": "biome format src --write",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate"
+  }
+}
+```
+
+
+================================================================================
+## ruler.md
+================================================================================
+
+# Ruler - Code Rules for AI Agents
+
+Ruler is a tool for managing code rules that get injected into AI agent context files (CLAUDE.md, .cursorrules, etc.). It provides a single source of truth for project conventions.
+
+## What Ruler Does
+
+1. **Aggregates rules** from `.ruler/*.md` files
+2. **Generates agent files** (CLAUDE.md, .cursorrules, AGENTS.md, etc.)
+3. **Manages MCP servers** via `ruler.toml` config
+4. **Supports nested rules** for monorepos
+
+## Installation
+
+```bash
+# Global install
+npm install -g @intellectronica/ruler
+
+# Or use npx
+npx @intellectronica/ruler apply
+```
+
+## Quick Start
+
+```bash
+# Initialize a new .ruler directory
+mkdir .ruler
+touch .ruler/ruler.toml
+
+# Create your first rule file
+cat > .ruler/code-style.md << 'EOF'
+# Code Style
+
+- MUST: Use double quotes for strings
+- MUST: Include semicolons
+- SHOULD: Prefer template literals over concatenation
+EOF
+
+# Apply rules to generate agent files
+npx ruler apply
+```
+
+## Directory Structure
+
+```
+project/
+├── .ruler/
+│   ├── ruler.toml           # Configuration
+│   ├── agents.md             # Rule directory/index
+│   ├── code-style.md         # Formatting rules
+│   ├── typescript.md         # TypeScript rules
+│   ├── react.md              # React rules
+│   ├── nextjs.md             # Next.js rules
+│   ├── tailwind.md           # Tailwind rules
+│   ├── testing.md            # Testing rules
+│   ├── git.md                # Git workflow
+│   ├── env.md                # Environment rules
+│   ├── turborepo.md          # Monorepo rules
+│   ├── integrations.md       # External services
+│   └── interface/            # UI/UX guidelines
+│       ├── animation.md
+│       ├── forms.md
+│       ├── interactions.md
+│       ├── layout.md
+│       ├── design.md
+│       ├── performance.md
+│       └── content-accessibility.md
+├── CLAUDE.md                 # Generated (Claude Code)
+├── .cursorrules              # Generated (Cursor)
+└── AGENTS.md                 # Generated (other agents)
+```
+
+## Configuration (ruler.toml)
+
+```toml
+# Ruler Configuration File
+# See https://ai.intellectronica.net/ruler for documentation.
+
+# Which agents to generate files for by default
+default_agents = ["cursor", "claude", "codex"]
+
+# Enable nested rule loading from nested .ruler directories
+# nested = false
+
+# --- MCP Configuration ---
+[mcp]
+enabled = true
+merge_strategy = "merge"
+
+# --- Agent Configurations ---
+# Customize output paths per agent
+
+[agents.claude]
+enabled = true
+# output_path = "CLAUDE.md"  # default
+
+[agents.cursor]
+enabled = true
+# output_path = ".cursorrules"  # default
+
+[agents.copilot]
+enabled = true
+output_path = ".github/copilot-instructions.md"
+
+# --- MCP Servers ---
+# Define MCP servers for agent tools
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.neon]
+url = "https://mcp.neon.tech/mcp"
+headers = { Authorization = "Bearer ${NEON_API_KEY}" }
+
+[mcp_servers.fal]
+url = "https://docs.fal.ai/mcp"
+```
+
+## Commands
+
+```bash
+# Apply rules (generate agent files)
+npx ruler apply
+
+# Apply with specific agents only
+npx ruler apply --agents cursor,claude
+
+# Apply without backups
+npx ruler apply --backup=false
+
+# Apply in nested mode (monorepos)
+npx ruler apply --nested
+
+# Revert generated files
+npx ruler revert
+
+# Revert without keeping backups
+npx ruler revert --keep-backups=false
+```
+
+## Writing Rules
+
+Rules use RFC 2119 terms for clarity:
+
+| Term | Meaning |
+|------|---------|
+| **MUST** | Absolute requirement |
+| **MUST NOT** | Absolute prohibition |
+| **SHOULD** | Recommended, but exceptions allowed |
+| **SHOULD NOT** | Not recommended, but not prohibited |
+| **NEVER** | Strong prohibition (alias for MUST NOT) |
+
+### Example Rule File
+
+```markdown
+# TypeScript Rules
+
+## Type Definitions
+- MUST: Use `interface` over `type` for object definitions.
+- MUST: Use `type` for unions, mapped types, and conditionals.
+- MUST: Use `import type` for type-only imports.
+
+## Type Safety
+- NEVER: Use `any`. Prefer `unknown` with narrowing.
+- NEVER: Use non-null assertions (`!`).
+- NEVER: Cast with `as any` or `as unknown as`.
+
+## Simplicity
+- SHOULD: Inline types when they're only used once.
+- SHOULD: Avoid unnecessary abstractions.
+```
+
+## Package.json Scripts
+
+```json
+{
+  "scripts": {
+    "rules:apply": "ruler apply --backup=false --nested",
+    "rules:clean": "ruler revert --keep-backups=false"
+  }
+}
+```
+
+## Monorepo Usage
+
+For monorepos, you can have:
+- Root `.ruler/` for shared rules
+- Package-specific `.ruler/` for overrides
+
+Enable nested mode:
+
+```toml
+# ruler.toml
+nested = true
+```
+
+Then run:
+
+```bash
+npx ruler apply --nested
+```
+
+## Integration with Husky
+
+Add ruler to your pre-commit hook:
+
+```bash
+# .husky/pre-commit
+pnpm rules:apply
+git add CLAUDE.md .cursorrules AGENTS.md
+```
+
+## Complete Ruleset
+
+See the `rules/` directory in this documentation for a complete, copy-paste-ready ruleset based on the materia project:
+
+- [rules/README.md](./rules/README.md) - Rule directory index
+- [rules/code-style.md](./rules/code-style.md) - Formatting and syntax
+- [rules/typescript.md](./rules/typescript.md) - TypeScript conventions
+- [rules/react.md](./rules/react.md) - React component patterns
+- [rules/nextjs.md](./rules/nextjs.md) - Next.js App Router rules
+- [rules/tailwind.md](./rules/tailwind.md) - Tailwind v4 configuration
+- [rules/testing.md](./rules/testing.md) - Testing requirements
+- [rules/git.md](./rules/git.md) - Git workflow
+- [rules/env.md](./rules/env.md) - Environment variable handling
+- [rules/turborepo.md](./rules/turborepo.md) - Monorepo patterns
+- [rules/integrations.md](./rules/integrations.md) - External service rules
+- [rules/interface/](./rules/interface/) - UI/UX guidelines
+
+## Why Ruler?
+
+1. **Single source of truth** - Rules live in `.ruler/`, not scattered across agent files
+2. **Multi-agent support** - One ruleset, multiple agent file formats
+3. **Version controlled** - Rules are markdown, easy to review and diff
+4. **MCP integration** - Manage MCP server configs alongside rules
+5. **Monorepo friendly** - Nested rules with inheritance
+
+
+================================================================================
+## integrations/clerk-auth.md
+================================================================================
+
+# Clerk Authentication
+
+Clerk provides complete user management with pre-built UI components, social logins, and organization support.
+
+## Installation
+
+```bash
+pnpm add @clerk/nextjs
+pnpm add -D @clerk/testing
+```
+
+## Environment Variables
+
+```bash
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+```
+
+## Setup
+
+### Provider (App Router)
+
+```tsx
+// app/layout.tsx
+import { ClerkProvider } from "@clerk/nextjs";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <ClerkProvider>
+      <html lang="en">
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
+  );
+}
+```
+
+### Proxy (Next.js 16+)
+
+Next.js 16 replaces `middleware.ts` with `proxy.ts` for auth handling:
+
+```ts
+// proxy.ts
+import { clerkProxy, createRouteMatcher } from "@clerk/nextjs/server";
+
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/api/webhooks(.*)",
+]);
+
+export default clerkProxy(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
+});
+```
+
+### Middleware (Next.js 15 and earlier)
+
+For projects still on Next.js 15:
+
+```ts
+// middleware.ts
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/api/webhooks(.*)",
+]);
+
+export default clerkMiddleware(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
+});
+
+export const config = {
+  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+};
+```
+
+## UI Components
+
+### Sign In/Up Buttons
+
+```tsx
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+
+export function Header() {
+  return (
+    <header>
+      <SignedOut>
+        <SignInButton />
+        <SignUpButton />
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
+    </header>
+  );
+}
+```
+
+### Custom Sign In Page
+
+```tsx
+// app/sign-in/[[...sign-in]]/page.tsx
+import { SignIn } from "@clerk/nextjs";
+
+export default function SignInPage() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <SignIn />
+    </div>
+  );
+}
+```
+
+### Custom Sign Up Page
+
+```tsx
+// app/sign-up/[[...sign-up]]/page.tsx
+import { SignUp } from "@clerk/nextjs";
+
+export default function SignUpPage() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <SignUp />
+    </div>
+  );
+}
+```
+
+## Server-Side Auth
+
+### In Server Components
+
+```tsx
+// app/dashboard/page.tsx
+import { auth, currentUser } from "@clerk/nextjs/server";
+
+export default async function DashboardPage() {
+  const { userId } = await auth();
+  const user = await currentUser();
+
+  if (!userId) {
+    return <div>Please sign in</div>;
+  }
+
+  return (
+    <div>
+      <h1>Welcome, {user?.firstName}</h1>
+    </div>
+  );
+}
+```
+
+### In Server Actions
+
+```ts
+// actions/profile.ts
+"use server";
+
+import { auth } from "@clerk/nextjs/server";
+
+export async function updateProfile(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  // Update user profile...
+}
+```
+
+### In API Routes
+
+```ts
+// app/api/user/route.ts
+import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  return NextResponse.json({ userId });
+}
+```
+
+## Client-Side Auth
+
+```tsx
+"use client";
+
+import { useAuth, useUser } from "@clerk/nextjs";
+
+export function ClientComponent() {
+  const { isLoaded, userId, isSignedIn } = useAuth();
+  const { user } = useUser();
+
+  if (!isLoaded) return <div>Loading...</div>;
+  if (!isSignedIn) return <div>Sign in to continue</div>;
+
+  return <div>Hello, {user?.firstName}</div>;
+}
+```
+
+## With tRPC
+
+```ts
+// packages/api/src/trpc.ts
+import { initTRPC, TRPCError } from "@trpc/server";
+import { auth } from "@clerk/nextjs/server";
+
+const t = initTRPC.context<Context>().create();
+
+const isAuthed = t.middleware(async ({ ctx, next }) => {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({ ctx: { ...ctx, userId } });
+});
+
+export const protectedProcedure = t.procedure.use(isAuthed);
+```
+
+## With Drizzle
+
+```ts
+// db/schema.ts
+import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+
+export const users = pgTable("users", {
+  id: text("id").primaryKey(), // Clerk user ID
+  email: text("email").notNull(),
+  name: text("name"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+```
+
+### Sync User on Sign Up (Webhook)
+
+```ts
+// app/api/webhooks/clerk/route.ts
+import { Webhook } from "svix";
+import { headers } from "next/headers";
+import { WebhookEvent } from "@clerk/nextjs/server";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+
+export async function POST(req: Request) {
+  const headerPayload = await headers();
+  const svix_id = headerPayload.get("svix-id");
+  const svix_timestamp = headerPayload.get("svix-timestamp");
+  const svix_signature = headerPayload.get("svix-signature");
+
+  const payload = await req.json();
+  const body = JSON.stringify(payload);
+
+  const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
+  const evt = wh.verify(body, {
+    "svix-id": svix_id!,
+    "svix-timestamp": svix_timestamp!,
+    "svix-signature": svix_signature!,
+  }) as WebhookEvent;
+
+  if (evt.type === "user.created") {
+    await db.insert(users).values({
+      id: evt.data.id,
+      email: evt.data.email_addresses[0]?.email_address ?? "",
+      name: `${evt.data.first_name} ${evt.data.last_name}`.trim(),
+    });
+  }
+
+  return new Response("OK");
+}
+```
+
+## Testing with Clerk
+
+```ts
+// e2e/auth.spec.ts
+import { test, expect } from "@playwright/test";
+import { setupClerkTestingToken } from "@clerk/testing/playwright";
+
+test("authenticated user can access dashboard", async ({ page }) => {
+  await setupClerkTestingToken({ page });
+  await page.goto("/dashboard");
+  await expect(page.getByText("Welcome")).toBeVisible();
+});
+```
+
+## Projects Using Clerk
+
+- **notiflow**, **reccs**, **faceplacer** - User auth
+- **kinecho**, **beacon** - User + organization auth
+- **scenes**, **throughline** - User profiles
+- **blomma** - Multi-app auth (web + admin)
+
+
+================================================================================
+## integrations/drizzle-neon.md
+================================================================================
+
+# Drizzle ORM + Neon
+
+Drizzle is a type-safe ORM with SQL-like syntax. Neon is serverless PostgreSQL with branching and instant scaling.
+
+## Migration Strategy
+
+**Prefer `db:push` over formal migrations.**
+
+| Approach | When to Use |
+|----------|-------------|
+| `db:push` | Default for all development and most production |
+| `db:generate` + `db:migrate` | Only when you need migration history for compliance/audit |
+
+Rationale: `db:push` is faster, simpler, and sufficient for most apps. It directly syncs your schema to the database without generating migration files. Neon's branching makes it safe to iterate quickly—create a branch, push changes, test, merge or discard.
+
+```bash
+# Development workflow
+pnpm db:push      # Apply schema changes directly
+pnpm db:studio    # Inspect data
+```
+
+For breaking changes (dropping columns, renaming), push still works—Drizzle will prompt for confirmation on destructive operations.
+
+## Installation
+
+```bash
+pnpm add drizzle-orm @neondatabase/serverless
+pnpm add -D drizzle-kit
+```
+
+## Environment Variables
+
+```bash
+DATABASE_URL=postgresql://user:pass@ep-xxx.region.aws.neon.tech/dbname?sslmode=require
+```
+
+## Configuration
+
+### drizzle.config.ts
+
+```ts
+import { defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+  schema: "./src/db/schema.ts",
+  out: "./drizzle",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL!,
+  },
+});
+```
+
+### Monorepo Config
+
+```ts
+// packages/db/drizzle.config.ts
+import { defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+  schema: "./src/schema/index.ts",
+  out: "./drizzle",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL!,
+  },
+});
+```
+
+## Database Client
+
+### Serverless (Neon)
+
+```ts
+// db/client.ts
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import * as schema from "./schema";
+
+const sql = neon(process.env.DATABASE_URL!);
+export const db = drizzle(sql, { schema });
+```
+
+### Pooled Connection (for long-running)
+
+```ts
+import { Pool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import * as schema from "./schema";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const db = drizzle(pool, { schema });
+```
+
+## Schema Definition
+
+### Basic Tables
+
+```ts
+// db/schema.ts
+import { pgTable, text, timestamp, serial, integer, boolean } from "drizzle-orm/pg-core";
+
+export const users = pgTable("users", {
+  id: text("id").primaryKey(), // Use Clerk ID
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const posts = pgTable("posts", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content"),
+  published: boolean("published").default(false),
+  authorId: text("author_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+```
+
+### Relations
+
+```ts
+import { relations } from "drizzle-orm";
+
+export const usersRelations = relations(users, ({ many }) => ({
+  posts: many(posts),
+}));
+
+export const postsRelations = relations(posts, ({ one }) => ({
+  author: one(users, {
+    fields: [posts.authorId],
+    references: [users.id],
+  }),
+}));
+```
+
+### Enums
+
+```ts
+import { pgEnum } from "drizzle-orm/pg-core";
+
+export const statusEnum = pgEnum("status", ["draft", "published", "archived"]);
+
+export const posts = pgTable("posts", {
+  id: serial("id").primaryKey(),
+  status: statusEnum("status").default("draft"),
+});
+```
+
+### Vectors (pgvector)
+
+```ts
+import { vector } from "drizzle-orm/pg-core";
+
+export const documents = pgTable("documents", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  embedding: vector("embedding", { dimensions: 1024 }),
+});
+```
+
+## Queries
+
+### Select
+
+```ts
+import { db } from "@/db/client";
+import { users, posts } from "@/db/schema";
+import { eq, and, desc, like, sql } from "drizzle-orm";
+
+// Simple select
+const allUsers = await db.select().from(users);
+
+// With conditions
+const activeUsers = await db
+  .select()
+  .from(users)
+  .where(eq(users.active, true));
+
+// Specific columns
+const userNames = await db
+  .select({ id: users.id, name: users.name })
+  .from(users);
+
+// With relations (requires schema with relations)
+const userWithPosts = await db.query.users.findFirst({
+  where: eq(users.id, userId),
+  with: {
+    posts: true,
+  },
+});
+```
+
+### Insert
+
+```ts
+// Single insert
+const newUser = await db
+  .insert(users)
+  .values({
+    id: clerkUserId,
+    email: "user@example.com",
+    name: "John Doe",
+  })
+  .returning();
+
+// Multiple insert
+await db.insert(posts).values([
+  { title: "Post 1", authorId: userId },
+  { title: "Post 2", authorId: userId },
+]);
+
+// Upsert
+await db
+  .insert(users)
+  .values({ id: clerkUserId, email })
+  .onConflictDoUpdate({
+    target: users.id,
+    set: { email },
+  });
+```
+
+### Update
+
+```ts
+await db
+  .update(users)
+  .set({ name: "New Name", updatedAt: new Date() })
+  .where(eq(users.id, userId));
+```
+
+### Delete
+
+```ts
+await db.delete(posts).where(eq(posts.id, postId));
+```
+
+### Transactions
+
+```ts
+await db.transaction(async (tx) => {
+  const [user] = await tx
+    .insert(users)
+    .values({ id, email })
+    .returning();
+
+  await tx.insert(posts).values({
+    title: "Welcome Post",
+    authorId: user.id,
+  });
+});
+```
+
+### Raw SQL
+
+```ts
+import { sql } from "drizzle-orm";
+
+// Vector similarity search
+const similar = await db
+  .select({
+    id: documents.id,
+    content: documents.content,
+    similarity: sql<number>`1 - (${documents.embedding} <=> ${embedding})`,
+  })
+  .from(documents)
+  .orderBy(sql`${documents.embedding} <=> ${embedding}`)
+  .limit(10);
+```
+
+## CLI Commands
+
+```bash
+# Push schema to database (dev)
+pnpm drizzle-kit push
+
+# Open Drizzle Studio (GUI)
+pnpm drizzle-kit studio
+
+# Generate migration
+pnpm drizzle-kit generate
+
+# Run migrations (production)
+pnpm drizzle-kit migrate
+
+# Check schema drift
+pnpm drizzle-kit check
+```
+
+## Package.json Scripts
+
+```json
+{
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  }
+}
+```
+
+## Monorepo Package
+
+```
+packages/db/
+├── src/
+│   ├── index.ts          # Export client and schema
+│   ├── client.ts         # Database connection
+│   └── schema/
+│       ├── index.ts      # Export all schemas
+│       ├── users.ts
+│       └── posts.ts
+├── drizzle/              # Generated migrations
+├── drizzle.config.ts
+└── package.json
+```
+
+### package.json
+
+```json
+{
+  "name": "@project/db",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  }
+}
+```
+
+## Type Inference
+
+```ts
+import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+import { users, posts } from "./schema";
+
+export type User = InferSelectModel<typeof users>;
+export type NewUser = InferInsertModel<typeof users>;
+export type Post = InferSelectModel<typeof posts>;
+export type NewPost = InferInsertModel<typeof posts>;
+```
+
+## Projects Using Drizzle + Neon
+
+All projects use this stack:
+- **notiflow**, **reccs**, **faceplacer** (single app)
+- **kinecho**, **beacon**, **scenes** (monorepo packages/db)
+- **populararchive**, **materia**, **designround** (monorepo)
+
+
+================================================================================
+## integrations/trpc.md
+================================================================================
+
+# tRPC
+
+tRPC provides end-to-end typesafe APIs without code generation. Define procedures on the server, call them from the client with full TypeScript inference.
+
+## Installation
+
+```bash
+pnpm add @trpc/server @trpc/client @trpc/tanstack-react-query zod superjson
+```
+
+## React Packages
+
+Two packages exist for React integration in tRPC 11:
+
+| Package | Status | Notes |
+|---------|--------|-------|
+| `@trpc/tanstack-react-query` | **Recommended** | New package, use for new projects |
+| `@trpc/react-query` | Classic | Still maintained, existing projects can stay |
+
+For new projects, use `@trpc/tanstack-react-query` with `createTRPCContext` and `useTRPC`. This guide uses the new package.
+
+## Monorepo Structure
+
+```
+packages/
+├── api/
+│   ├── src/
+│   │   ├── root.ts          # Root router
+│   │   ├── trpc.ts          # tRPC instance
+│   │   └── routers/
+│   │       ├── user.ts
+│   │       └── posts.ts
+│   └── package.json
+apps/
+└── web/
+    └── lib/
+        └── trpc.ts          # Client setup
+```
+
+## Server Setup
+
+### tRPC Instance
+
+```ts
+// packages/api/src/trpc.ts
+import { initTRPC, TRPCError } from "@trpc/server";
+import superjson from "superjson";
+import { ZodError } from "zod";
+import { auth } from "@clerk/nextjs/server";
+
+interface Context {
+  userId: string | null;
+}
+
+export const createContext = async (): Promise<Context> => {
+  const { userId } = await auth();
+  return { userId };
+};
+
+const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+  errorFormatter({ shape, error }) {
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
+      },
+    };
+  },
+});
+
+export const router = t.router;
+export const publicProcedure = t.procedure;
+
+const isAuthed = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.userId) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({ ctx: { ...ctx, userId: ctx.userId } });
+});
+
+export const protectedProcedure = t.procedure.use(isAuthed);
+```
+
+### Routers
+
+```ts
+// packages/api/src/routers/user.ts
+import { z } from "zod";
+import { router, protectedProcedure } from "../trpc";
+import { db } from "@project/db";
+import { users } from "@project/db/schema";
+import { eq } from "drizzle-orm";
+
+export const userRouter = router({
+  me: protectedProcedure.query(async ({ ctx }) => {
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, ctx.userId),
+    });
+    return user;
+  }),
+
+  update: protectedProcedure
+    .input(z.object({ name: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      await db
+        .update(users)
+        .set({ name: input.name })
+        .where(eq(users.id, ctx.userId));
+      return { success: true };
+    }),
+});
+```
+
+### Root Router
+
+```ts
+// packages/api/src/root.ts
+import { router } from "./trpc";
+import { userRouter } from "./routers/user";
+import { postsRouter } from "./routers/posts";
+
+export const appRouter = router({
+  user: userRouter,
+  posts: postsRouter,
+});
+
+export type AppRouter = typeof appRouter;
+```
+
+## Client Setup
+
+### TanStack Query Provider
+
+```tsx
+// app/providers.tsx
+"use client";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { httpBatchLink } from "@trpc/client";
+import { createTRPCReact } from "@trpc/react-query";
+import { useState } from "react";
+import superjson from "superjson";
+import type { AppRouter } from "@project/api";
+
+export const trpc = createTRPCReact<AppRouter>();
+
+export function TRPCProvider({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient());
+  const [trpcClient] = useState(() =>
+    trpc.createClient({
+      links: [
+        httpBatchLink({
+          url: "/api/trpc",
+          transformer: superjson,
+        }),
+      ],
+    })
+  );
+
+  return (
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </trpc.Provider>
+  );
+}
+```
+
+### API Route Handler
+
+```ts
+// app/api/trpc/[trpc]/route.ts
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { appRouter } from "@project/api";
+import { createContext } from "@project/api/trpc";
+
+const handler = (req: Request) =>
+  fetchRequestHandler({
+    endpoint: "/api/trpc",
+    req,
+    router: appRouter,
+    createContext,
+  });
+
+export { handler as GET, handler as POST };
+```
+
+## Client Usage
+
+### Queries
+
+```tsx
+"use client";
+
+import { trpc } from "@/app/providers";
+
+export function Profile() {
+  const { data: user, isLoading } = trpc.user.me.useQuery();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return <div>Hello, {user?.name}</div>;
+}
+```
+
+### Mutations
+
+```tsx
+"use client";
+
+import { trpc } from "@/app/providers";
+
+export function UpdateName() {
+  const utils = trpc.useUtils();
+  const updateUser = trpc.user.update.useMutation({
+    onSuccess: () => {
+      utils.user.me.invalidate();
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    updateUser.mutate({ name: formData.get("name") as string });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" />
+      <button type="submit" disabled={updateUser.isPending}>
+        {updateUser.isPending ? "Saving..." : "Save"}
+      </button>
+    </form>
+  );
+}
+```
+
+### Optimistic Updates
+
+```tsx
+const utils = trpc.useUtils();
+
+const toggleLike = trpc.posts.toggleLike.useMutation({
+  onMutate: async ({ postId }) => {
+    await utils.posts.byId.cancel({ id: postId });
+    const previous = utils.posts.byId.getData({ id: postId });
+
+    utils.posts.byId.setData({ id: postId }, (old) =>
+      old ? { ...old, liked: !old.liked, likeCount: old.likeCount + (old.liked ? -1 : 1) } : old
+    );
+
+    return { previous };
+  },
+  onError: (err, { postId }, ctx) => {
+    utils.posts.byId.setData({ id: postId }, ctx?.previous);
+  },
+  onSettled: (_, __, { postId }) => {
+    utils.posts.byId.invalidate({ id: postId });
+  },
+});
+```
+
+## Server-Side Calls
+
+### In Server Components
+
+```tsx
+// app/dashboard/page.tsx
+import { appRouter } from "@project/api";
+import { createContext } from "@project/api/trpc";
+
+export default async function DashboardPage() {
+  const ctx = await createContext();
+  const caller = appRouter.createCaller(ctx);
+
+  const user = await caller.user.me();
+  const posts = await caller.posts.list();
+
+  return (
+    <div>
+      <h1>Welcome, {user?.name}</h1>
+      {posts.map((post) => (
+        <div key={post.id}>{post.title}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+### In Server Actions
+
+```ts
+// actions/posts.ts
+"use server";
+
+import { appRouter } from "@project/api";
+import { createContext } from "@project/api/trpc";
+import { revalidatePath } from "next/cache";
+
+export async function createPost(title: string, content: string) {
+  const ctx = await createContext();
+  const caller = appRouter.createCaller(ctx);
+
+  await caller.posts.create({ title, content });
+  revalidatePath("/posts");
+}
+```
+
+## Input Validation
+
+```ts
+import { z } from "zod";
+
+const createPostInput = z.object({
+  title: z.string().min(1).max(100),
+  content: z.string().min(1).max(10000),
+  tags: z.array(z.string()).optional(),
+});
+
+export const postsRouter = router({
+  create: protectedProcedure
+    .input(createPostInput)
+    .mutation(async ({ ctx, input }) => {
+      // Input is fully typed and validated
+      return db.insert(posts).values({
+        ...input,
+        authorId: ctx.userId,
+      });
+    }),
+});
+```
+
+## Projects Using tRPC
+
+- **kinecho** - Full tRPC API layer
+- **massiveconnects** - Content API
+- **beacon** - Location services API
+- **throughline** - AI writing API
+
+
+================================================================================
+## integrations/env-validation.md
+================================================================================
+
+# Environment Variable Validation
+
+Type-safe environment variables with Zod. No t3-env—just pure Zod with explicit test handling.
+
+## Why Not t3-env?
+
+t3-env has issues with:
+- Playwright tests (validation runs before env is loaded)
+- Vitest setup timing
+- Vercel build phase (missing runtime vars during static generation)
+- Complex `runtimeEnv` mapping that's easy to forget
+
+**This approach**: Pure Zod schemas with a `SKIP_ENV_VALIDATION` flag that tests and builds can set.
+
+## Single App Setup
+
+### env.ts
+
+```ts
+// env.ts
+import { z } from "zod";
+
+const envSchema = z.object({
+  NODE_ENV: z.enum(["development", "test", "production"]).optional(),
+
+  // Server-only
+  DATABASE_URL: z.string().url(),
+  CLERK_SECRET_KEY: z.string().min(1),
+  OPENROUTER_API_KEY: z.string().min(1).optional(),
+  CRON_SECRET: z.string().min(32).optional(),
+
+  // Client (must be NEXT_PUBLIC_)
+  NEXT_PUBLIC_APP_URL: z.string().url(),
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
+});
+
+function validateEnv() {
+  // Skip during tests or Vercel build phase
+  const isVercelBuild = process.env.VERCEL === "1" && process.env.CI === "1";
+
+  if (process.env.SKIP_ENV_VALIDATION === "true" || isVercelBuild) {
+    return process.env as unknown as z.infer<typeof envSchema>;
+  }
+
+  const result = envSchema.safeParse(process.env);
+
+  if (!result.success) {
+    console.error("❌ Invalid environment variables:");
+    console.error(result.error.format());
+    throw new Error("Invalid environment variables");
+  }
+
+  return result.data;
+}
+
+export const env = validateEnv();
+```
+
+### Usage
+
+```ts
+// Anywhere in your app
+import { env } from "@/env";
+
+const db = drizzle(env.DATABASE_URL);
+```
+
+## Monorepo Setup
+
+For monorepos, create a shared `@project/env` package with separate server and client exports.
+
+### packages/env/src/server.ts
+
+```ts
+import { z } from "zod";
+
+function isPresent(value: unknown): boolean {
+  if (typeof value === "string") {
+    return value.trim().length > 0;
+  }
+  return value !== undefined && value !== null;
+}
+
+const serverSchema = z.object({
+  NODE_ENV: z.enum(["development", "test", "production"]).optional(),
+  DATABASE_URL: z.string().url().optional(),
+  CLERK_SECRET_KEY: z.string().min(1).optional(),
+  OPENROUTER_API_KEY: z.string().min(1).optional(),
+  VOYAGE_API_KEY: z.string().min(1).optional(),
+  FAL_API_KEY: z.string().min(1).optional(),
+  UPLOADTHING_TOKEN: z.string().min(1).optional(),
+  CRON_SECRET: z.string().min(32).optional(),
+});
+
+function validateServerEnv() {
+  const isVercelBuild = process.env.VERCEL === "1" && process.env.CI === "1";
+
+  if (process.env.SKIP_ENV_VALIDATION === "true" || isVercelBuild) {
+    return process.env as unknown as z.infer<typeof serverSchema>;
+  }
+
+  const result = serverSchema.safeParse(process.env);
+
+  if (!result.success) {
+    console.error("❌ Invalid server environment variables:");
+    console.error(result.error.format());
+    throw new Error("Invalid server environment variables");
+  }
+
+  return result.data;
+}
+
+export const serverEnv = validateServerEnv();
+export type ServerEnv = typeof serverEnv;
+
+/**
+ * Require a server env var at runtime. Throws if missing.
+ */
+export function requireServerEnv<Key extends keyof ServerEnv>(
+  key: Key
+): NonNullable<ServerEnv[Key]> {
+  const value = serverEnv[key];
+  if (!isPresent(value)) {
+    throw new Error(`Missing required environment variable: ${String(key)}`);
+  }
+  return value as NonNullable<ServerEnv[Key]>;
+}
+```
+
+### packages/env/src/next.ts
+
+```ts
+import { z } from "zod";
+
+function parseOptionalBoolean(value: unknown) {
+  if (value === undefined || value === null || value === "") return;
+  if (value === true || value === false) return value;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true" || normalized === "1") return true;
+    if (normalized === "false" || normalized === "0") return false;
+  }
+  return value;
+}
+
+const clientSchema = z.object({
+  NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
+  // Boolean example (handles "true"/"false" strings)
+  NEXT_PUBLIC_SHOW_DEVTOOLS: z.preprocess(
+    parseOptionalBoolean,
+    z.boolean().optional()
+  ),
+});
+
+function validateEnv() {
+  const isVercelBuild = process.env.VERCEL === "1" && process.env.CI === "1";
+
+  if (process.env.SKIP_ENV_VALIDATION === "true" || isVercelBuild) {
+    return process.env as unknown as z.infer<typeof clientSchema>;
+  }
+
+  const result = clientSchema.safeParse(process.env);
+
+  if (!result.success) {
+    console.error("❌ Invalid Next.js environment variables:");
+    console.error(result.error.format());
+    throw new Error("Invalid Next.js environment variables");
+  }
+
+  return result.data;
+}
+
+export const env = validateEnv();
+export type NextEnv = typeof env;
+```
+
+### packages/env/package.json
+
+```json
+{
+  "name": "@project/env",
+  "exports": {
+    "./server": "./src/server.ts",
+    "./next": "./src/next.ts"
+  }
+}
+```
+
+### apps/web/env.ts
+
+App-specific env that combines shared schemas and enforces required vars:
+
+```ts
+import { env as nextEnv } from "@project/env/next";
+import { requireServerEnv, serverEnv } from "@project/env/server";
+
+export const env = {
+  ...nextEnv,
+  ...serverEnv,
+  // Enforce these are present for this app
+  DATABASE_URL: requireServerEnv("DATABASE_URL"),
+  CLERK_SECRET_KEY: requireServerEnv("CLERK_SECRET_KEY"),
+};
+
+export type WebEnv = typeof env;
+```
+
+## Test Configuration
+
+### Playwright
+
+```ts
+// playwright.config.ts
+import { defineConfig } from "@playwright/test";
+
+export default defineConfig({
+  webServer: {
+    command: "pnpm dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+    env: {
+      SKIP_ENV_VALIDATION: "true",
+    },
+  },
+});
+```
+
+### Vitest
+
+```ts
+// vitest.config.ts
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    env: {
+      SKIP_ENV_VALIDATION: "true",
+    },
+  },
+});
+```
+
+Or in a setup file:
+
+```ts
+// vitest.setup.ts
+process.env.SKIP_ENV_VALIDATION = "true";
+
+// Set any test-specific env vars
+process.env.DATABASE_URL = "postgresql://test:test@localhost:5432/test";
+```
+
+### Scripts
+
+For standalone scripts that don't need all vars:
+
+```json
+{
+  "scripts": {
+    "sync:data": "SKIP_ENV_VALIDATION=true tsx scripts/sync.ts"
+  }
+}
+```
+
+## Key Patterns
+
+### Optional vs Required
+
+In the shared schema, make everything `.optional()`. Then use `requireServerEnv()` in app-specific env files to enforce what that app actually needs:
+
+```ts
+// Schema: optional (other apps may not need it)
+STRIPE_SECRET_KEY: z.string().min(1).optional(),
+
+// App env.ts: required for this app
+STRIPE_SECRET_KEY: requireServerEnv("STRIPE_SECRET_KEY"),
+```
+
+### Boolean Environment Variables
+
+Env vars are always strings. Use `preprocess` to handle `"true"`/`"false"`:
+
+```ts
+NEXT_PUBLIC_DEBUG: z.preprocess(
+  parseOptionalBoolean,
+  z.boolean().optional()
+),
+```
+
+### Coerced Numbers
+
+```ts
+TYPESENSE_PORT: z.coerce.number().optional().default(443),
+```
+
+### URL Validation
+
+```ts
+DATABASE_URL: z.string().url(),
+APP_URL: z.string().url(),
+```
+
+### Minimum Length (for secrets)
+
+```ts
+JWT_SECRET: z.string().min(32),
+CRON_SECRET: z.string().min(32),
+```
+
+## When Validation Runs
+
+| Context | Behavior |
+|---------|----------|
+| Dev server | Validates on startup, fails fast |
+| Production | Validates on startup, fails fast |
+| Vercel build | Skipped (static generation phase) |
+| Playwright tests | Skipped via `SKIP_ENV_VALIDATION` |
+| Vitest tests | Skipped via `SKIP_ENV_VALIDATION` |
+| Scripts | Skipped when flag is set |
+
+## Never Do
+
+```ts
+// Direct process.env access - no validation, no types
+const apiKey = process.env.API_KEY; // ❌
+
+// Use the validated env instead
+import { env } from "@/env";
+const apiKey = env.API_KEY; // ✅
+```
+
+
+================================================================================
+## integrations/zustand.md
+================================================================================
+
+# Zustand
+
+Lightweight state management for React. Use for UI state that needs to persist or be shared across components.
+
+## When to Use Zustand vs React Context
+
+| Use Case | Solution |
+|----------|----------|
+| Theme, auth, locale (rarely changes) | React Context |
+| Dependency injection (db, api clients) | React Context |
+| UI preferences (sidebar pinned, view mode) | Zustand + persist |
+| Complex component state (carousel, forms) | Zustand |
+| Frequently updating state | Zustand (avoids re-render cascade) |
+| State that survives page refresh | Zustand + persist |
+
+**Rule of thumb**: If it changes often or needs localStorage, use Zustand. If it's mostly static config or dependency injection, use Context.
+
+## Installation
+
+```bash
+pnpm add zustand
+```
+
+## Basic Store
+
+```ts
+// stores/cart-store.ts
+import { create } from "zustand";
+
+interface CartState {
+  items: string[];
+  addItem: (id: string) => void;
+  removeItem: (id: string) => void;
+  clear: () => void;
+}
+
+export const useCartStore = create<CartState>((set) => ({
+  items: [],
+  addItem: (id) => set((state) => ({ items: [...state.items, id] })),
+  removeItem: (id) => set((state) => ({
+    items: state.items.filter((i) => i !== id)
+  })),
+  clear: () => set({ items: [] }),
+}));
+```
+
+## With Persist (localStorage)
+
+```ts
+// stores/sidebar-store.ts
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+interface SidebarState {
+  isPinned: boolean;
+  isExpanded: boolean;
+  togglePinned: () => void;
+  setExpanded: (expanded: boolean) => void;
+}
+
+export const useSidebarStore = create<SidebarState>()(
+  persist(
+    (set) => ({
+      isPinned: false,
+      isExpanded: false,
+      togglePinned: () => set((state) => ({ isPinned: !state.isPinned })),
+      setExpanded: (expanded) => set({ isExpanded: expanded }),
+    }),
+    {
+      name: "sidebar-state", // localStorage key
+    }
+  )
+);
+```
+
+### Partial Persistence
+
+Only persist what matters:
+
+```ts
+persist(
+  (set, get) => ({
+    isPinned: false,
+    isHovering: false, // Don't persist this
+    openItems: {},
+    // ...actions
+  }),
+  {
+    name: "sidebar-state",
+    partialize: (state) => ({
+      isPinned: state.isPinned,
+      openItems: state.openItems,
+      // isHovering excluded
+    }),
+  }
+)
+```
+
+### Hydration Handling
+
+Avoid flash of default state on page load:
+
+```ts
+interface SidebarState {
+  isHydrated: boolean;
+  // ...other state
+}
+
+persist(
+  (set, get) => ({
+    isHydrated: false,
+    // ...
+  }),
+  {
+    name: "sidebar-state",
+    onRehydrateStorage: () => (state) => {
+      if (state) {
+        state.isHydrated = true;
+      }
+    },
+  }
+)
+```
+
+```tsx
+// In component
+const isHydrated = useSidebarStore((s) => s.isHydrated);
+if (!isHydrated) return <SidebarSkeleton />;
+```
+
+## Selectors (Avoid Re-renders)
+
+Always use selectors—don't subscribe to the whole store:
+
+```tsx
+// Bad: re-renders on ANY state change
+const store = useCartStore();
+
+// Good: only re-renders when items changes
+const items = useCartStore((state) => state.items);
+const addItem = useCartStore((state) => state.addItem);
+
+// Good: multiple selectors
+function CartCount() {
+  const count = useCartStore((state) => state.items.length);
+  return <span>{count}</span>;
+}
+```
+
+### Selector Exports
+
+Export selectors for reuse:
+
+```ts
+// stores/product-grid-store.ts
+export const useProductGridStore = create<ProductGridState>()(
+  subscribeWithSelector((set, get) => ({
+    viewMode: "grid",
+    setViewMode: (viewMode) => set({ viewMode }),
+  }))
+);
+
+// Selector exports
+export const selectViewMode = (state: ProductGridState) => state.viewMode;
+
+// Usage
+const viewMode = useProductGridStore(selectViewMode);
+```
+
+## subscribeWithSelector
+
+Enables subscribing to specific state slices outside React:
+
+```ts
+import { create } from "zustand";
+import { subscribeWithSelector } from "zustand/middleware";
+
+export const useFilterStore = create<FilterState>()(
+  subscribeWithSelector((set) => ({
+    filters: {},
+    setFilter: (key, value) => set((state) => ({
+      filters: { ...state.filters, [key]: value }
+    })),
+  }))
+);
+
+// Subscribe outside React (e.g., in an effect or util)
+useFilterStore.subscribe(
+  (state) => state.filters,
+  (filters) => {
+    console.log("Filters changed:", filters);
+  }
+);
+```
+
+## Computed Values with get()
+
+Use `get()` for computed properties:
+
+```ts
+const useSidebarStore = create<SidebarState>()((set, get) => ({
+  state: "collapsed",
+  isHovering: false,
+
+  get isExpanded() {
+    const { state, isHovering } = get();
+    return state === "pinned" || state === "open" || isHovering;
+  },
+
+  get effectiveWidth() {
+    return get().isExpanded
+      ? "var(--sidebar-open-width)"
+      : "var(--sidebar-collapsed-width)";
+  },
+}));
+```
+
+## File Organization
+
+Colocate stores with their consumers:
+
+```
+features/
+├── cart/
+│   ├── components/
+│   ├── stores/
+│   │   └── cart-store.ts      # Feature-specific store
+│   └── hooks/
+├── search/
+│   ├── components/
+│   ├── stores/
+│   │   ├── filter-store.ts
+│   │   └── results-store.ts
+│   └── hooks/
+└── ...
+
+stores/                         # App-wide stores (if any)
+└── ui-store.ts
+```
+
+**Principle**: Keep stores small and feature-local. Don't create a global store package—each feature owns its state.
+
+## Patterns from Projects
+
+### Toggle with Same-Value Detection
+
+```ts
+// Toggle off when clicking the same value
+set: (key, edit) => {
+  set((state) => {
+    const current = state.changes[key];
+    const isSame = current?.kind === edit.kind;
+
+    if (isSame) {
+      // Remove the edit (toggle off)
+      const { [key]: _, ...rest } = state.changes;
+      return { changes: rest };
+    }
+
+    // Set/replace the edit
+    return { changes: { ...state.changes, [key]: edit } };
+  });
+}
+```
+
+### Dynamic Collection Creation
+
+```ts
+createCollection: (name) => {
+  const id = slugify(name);
+
+  if (get().collections.some((c) => c.id === id)) {
+    return id; // Already exists
+  }
+
+  set((state) => ({
+    collections: [...state.collections, { id, name, count: 0 }],
+  }));
+
+  return id;
+}
+```
+
+### Soft Delete (Avoid Layout Shift)
+
+```ts
+interface CarouselState {
+  slides: Slide[];
+  deletedIds: Set<string>;
+  deleteById: (id: string) => void;
+}
+
+// Filter in render, don't remove from array
+const visibleSlides = slides.filter((s) => !deletedIds.has(s.id));
+```
+
+## What NOT to Use Zustand For
+
+- **Server state** → Use TanStack Query
+- **Form state** → Use react-hook-form or native forms
+- **URL state** → Use nuqs or searchParams
+- **Auth state** → Use Clerk's hooks
+- **Static config** → Use React Context
+
+
+================================================================================
+## integrations/forms.md
+================================================================================
+
+# Forms
+
+Two patterns depending on complexity: native forms with Zod for simple cases, react-hook-form for complex forms.
+
+## Installation
+
+```bash
+# For complex forms
+pnpm add react-hook-form @hookform/resolvers
+
+# Zod is already in your stack
+```
+
+## Pattern 1: Native Forms + Zod (Simple)
+
+For straightforward forms, use native HTML forms with Zod validation:
+
+```tsx
+"use client";
+
+import { useState } from "react";
+import { z } from "zod";
+
+const contactSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
+
+type ContactForm = z.infer<typeof contactSchema>;
+
+export function ContactForm() {
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData);
+
+    const result = contactSchema.safeParse(data);
+
+    if (!result.success) {
+      setErrors(result.error.flatten().fieldErrors);
+      return;
+    }
+
+    setErrors({});
+    setIsPending(true);
+
+    try {
+      await submitContact(result.data);
+    } finally {
+      setIsPending(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="name">Name</label>
+        <input id="name" name="name" type="text" />
+        {errors.name && <p className="text-red-500 text-sm">{errors.name[0]}</p>}
+      </div>
+
+      <div>
+        <label htmlFor="email">Email</label>
+        <input id="email" name="email" type="email" />
+        {errors.email && <p className="text-red-500 text-sm">{errors.email[0]}</p>}
+      </div>
+
+      <div>
+        <label htmlFor="message">Message</label>
+        <textarea id="message" name="message" rows={4} />
+        {errors.message && <p className="text-red-500 text-sm">{errors.message[0]}</p>}
+      </div>
+
+      <button type="submit" disabled={isPending}>
+        {isPending ? "Sending..." : "Send"}
+      </button>
+    </form>
+  );
+}
+```
+
+## Pattern 2: Server Actions + useTransition
+
+For forms that call server actions directly:
+
+```tsx
+"use client";
+
+import { useTransition } from "react";
+import { updateProfile } from "./actions";
+
+export function ProfileForm({ initialName }: { initialName: string }) {
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      await updateProfile(formData);
+    });
+  }
+
+  return (
+    <form action={handleSubmit}>
+      <input name="name" defaultValue={initialName} />
+      <button type="submit" disabled={isPending}>
+        {isPending ? "Saving..." : "Save"}
+      </button>
+    </form>
+  );
+}
+```
+
+```ts
+// actions.ts
+"use server";
+
+import { z } from "zod";
+
+const profileSchema = z.object({
+  name: z.string().min(1),
+});
+
+export async function updateProfile(formData: FormData) {
+  const data = Object.fromEntries(formData);
+  const validated = profileSchema.parse(data);
+
+  // Update database
+  await db.update(users).set(validated).where(eq(users.id, userId));
+}
+```
+
+## Pattern 3: react-hook-form (Complex Forms)
+
+For forms with many fields, dynamic validation, or complex state:
+
+```tsx
+"use client";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const signupSchema = z.object({
+  firstName: z.string().min(1, "Required"),
+  lastName: z.string().min(1, "Required"),
+  email: z.string().email("Invalid email"),
+  password: z
+    .string()
+    .min(8, "At least 8 characters")
+    .regex(/[A-Z]/, "Must contain uppercase")
+    .regex(/[0-9]/, "Must contain number"),
+  acceptTerms: z.boolean().refine((val) => val, "Must accept terms"),
+});
+
+type SignupForm = z.infer<typeof signupSchema>;
+
+export function SignupForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupForm>({
+    resolver: zodResolver(signupSchema),
+  });
+
+  async function onSubmit(data: SignupForm) {
+    await createAccount(data);
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label>First Name</label>
+          <input {...register("firstName")} />
+          {errors.firstName && (
+            <p className="text-red-500 text-sm">{errors.firstName.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label>Last Name</label>
+          <input {...register("lastName")} />
+          {errors.lastName && (
+            <p className="text-red-500 text-sm">{errors.lastName.message}</p>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <label>Email</label>
+        <input {...register("email")} type="email" />
+        {errors.email && (
+          <p className="text-red-500 text-sm">{errors.email.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label>Password</label>
+        <input {...register("password")} type="password" />
+        {errors.password && (
+          <p className="text-red-500 text-sm">{errors.password.message}</p>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input {...register("acceptTerms")} type="checkbox" id="terms" />
+        <label htmlFor="terms">I accept the terms</label>
+      </div>
+      {errors.acceptTerms && (
+        <p className="text-red-500 text-sm">{errors.acceptTerms.message}</p>
+      )}
+
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Creating account..." : "Sign up"}
+      </button>
+    </form>
+  );
+}
+```
+
+## Validation Schemas
+
+Keep schemas in a separate file for reuse:
+
+```ts
+// features/auth/lib/schemas.ts
+import { z } from "zod";
+
+export const loginSchema = z.object({
+  email: z.string().min(1, "Required").email("Invalid email"),
+  password: z.string().min(1, "Required"),
+});
+
+export const signupSchema = z
+  .object({
+    email: z.string().email(),
+    password: z.string().min(8),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+
+export type LoginForm = z.infer<typeof loginSchema>;
+export type SignupForm = z.infer<typeof signupSchema>;
+```
+
+## Common Patterns
+
+### Dependent Validation
+
+```ts
+const orderSchema = z
+  .object({
+    deliveryMethod: z.enum(["pickup", "delivery"]),
+    address: z.string().optional(),
+  })
+  .refine(
+    (data) => data.deliveryMethod !== "delivery" || data.address,
+    {
+      message: "Address required for delivery",
+      path: ["address"],
+    }
+  );
+```
+
+### URL Validation (Optional)
+
+```ts
+const profileSchema = z.object({
+  website: z
+    .string()
+    .url("Invalid URL")
+    .optional()
+    .or(z.literal("")), // Allow empty string
+});
+```
+
+### Phone Number (Coerced)
+
+```ts
+const contactSchema = z.object({
+  phone: z.string().regex(/^\+?[0-9]{10,14}$/, "Invalid phone number"),
+});
+```
+
+### Trimmed Strings
+
+```ts
+const formSchema = z.object({
+  name: z.string().trim().min(1, "Required"),
+  email: z.string().trim().email(),
+});
+```
+
+## Error Display Component
+
+```tsx
+interface FieldErrorProps {
+  error?: string;
+}
+
+function FieldError({ error }: FieldErrorProps) {
+  if (!error) return null;
+  return <p className="mt-1 text-sm text-red-500">{error}</p>;
+}
+
+// Usage
+<FieldError error={errors.email?.message} />
+```
+
+## Loading Button
+
+```tsx
+interface SubmitButtonProps {
+  isPending: boolean;
+  children: React.ReactNode;
+  pendingText?: string;
+}
+
+function SubmitButton({
+  isPending,
+  children,
+  pendingText = "Saving...",
+}: SubmitButtonProps) {
+  return (
+    <button type="submit" disabled={isPending}>
+      {isPending ? (
+        <>
+          <Spinner className="mr-2 h-4 w-4" />
+          {pendingText}
+        </>
+      ) : (
+        children
+      )}
+    </button>
+  );
+}
+```
+
+## Decision Guide
+
+| Situation | Pattern |
+|-----------|---------|
+| Simple contact form | Native + Zod |
+| Server action mutation | useTransition |
+| Multi-step wizard | react-hook-form |
+| Many conditional fields | react-hook-form |
+| Real-time validation | react-hook-form |
+| File uploads | Native (FormData) |
+| Search/filter inputs | Controlled + debounce |
+
+## What NOT to Do
+
+```tsx
+// Don't: Controlled inputs for everything
+const [name, setName] = useState("");
+const [email, setEmail] = useState("");
+// 10 more useState calls...
+
+// Do: Uncontrolled with FormData or react-hook-form
+<input name="name" defaultValue={initialName} />
+```
+
+```tsx
+// Don't: Validate on every keystroke
+onChange={(e) => {
+  setValue(e.target.value);
+  validateField(e.target.value); // Expensive
+}}
+
+// Do: Validate on blur or submit
+onBlur={(e) => validateField(e.target.value)}
+```
+
+
+================================================================================
+## integrations/resend-email.md
+================================================================================
+
+# Resend + React Email
+
+Transactional email with React components. Resend for delivery, React Email for templates.
+
+## Installation
+
+```bash
+pnpm add resend @react-email/components
+```
+
+## Environment Variables
+
+```bash
+RESEND_API_KEY=re_xxxxx
+RESEND_FROM_EMAIL=hello@yourdomain.com
+```
+
+## Basic Setup
+
+### Client
+
+```ts
+// lib/email.ts
+import { Resend } from "resend";
+
+export const resend = new Resend(process.env.RESEND_API_KEY);
+```
+
+### Send an Email
+
+```ts
+import { resend } from "@/lib/email";
+import WelcomeEmail from "@/emails/welcome";
+
+await resend.emails.send({
+  from: "App <hello@yourdomain.com>",
+  to: user.email,
+  subject: "Welcome to the app",
+  react: WelcomeEmail({ name: user.name }),
+});
+```
+
+## React Email Templates
+
+### Basic Template
+
+```tsx
+// emails/welcome.tsx
+import {
+  Body,
+  Container,
+  Head,
+  Heading,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
+
+interface WelcomeEmailProps {
+  name: string;
+}
+
+export default function WelcomeEmail({ name }: WelcomeEmailProps) {
+  return (
+    <Html>
+      <Head />
+      <Preview>Welcome to the app, {name}</Preview>
+      <Body style={body}>
+        <Container style={container}>
+          <Heading style={heading}>Welcome, {name}!</Heading>
+          <Section>
+            <Text style={text}>
+              Thanks for signing up. We're excited to have you.
+            </Text>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  );
+}
+
+// Styles
+const body = {
+  backgroundColor: "#f6f9fc",
+  fontFamily: "-apple-system, sans-serif",
+};
+
+const container = {
+  backgroundColor: "#ffffff",
+  margin: "0 auto",
+  padding: "40px",
+  maxWidth: "600px",
+};
+
+const heading = {
+  fontSize: "24px",
+  fontWeight: "600",
+  color: "#1a1a1a",
+};
+
+const text = {
+  fontSize: "16px",
+  lineHeight: "26px",
+  color: "#4a4a4a",
+};
+```
+
+### With Layout
+
+```tsx
+// emails/components/layout.tsx
+import {
+  Body,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
+
+interface EmailLayoutProps {
+  preview: string;
+  children: React.ReactNode;
+}
+
+export function EmailLayout({ preview, children }: EmailLayoutProps) {
+  return (
+    <Html>
+      <Head />
+      <Preview>{preview}</Preview>
+      <Body style={body}>
+        <Container style={container}>
+          {children}
+          <Section style={footer}>
+            <Text style={footerText}>
+              You're receiving this because you signed up at ourapp.com
+            </Text>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  );
+}
+
+const body = {
+  backgroundColor: "#f6f9fc",
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+};
+
+const container = {
+  backgroundColor: "#ffffff",
+  margin: "40px auto",
+  padding: "40px",
+  maxWidth: "600px",
+  borderRadius: "8px",
+};
+
+const footer = {
+  marginTop: "32px",
+  paddingTop: "16px",
+  borderTop: "1px solid #e6e6e6",
+};
+
+const footerText = {
+  fontSize: "12px",
+  color: "#8898aa",
+  textAlign: "center" as const,
+};
+```
+
+```tsx
+// emails/password-reset.tsx
+import { Button, Heading, Section, Text } from "@react-email/components";
+import { EmailLayout } from "./components/layout";
+
+interface PasswordResetProps {
+  resetUrl: string;
+}
+
+export default function PasswordResetEmail({ resetUrl }: PasswordResetProps) {
+  return (
+    <EmailLayout preview="Reset your password">
+      <Heading style={heading}>Reset Your Password</Heading>
+      <Section>
+        <Text style={text}>
+          Click the button below to reset your password. This link expires in 1 hour.
+        </Text>
+        <Button href={resetUrl} style={button}>
+          Reset Password
+        </Button>
+      </Section>
+    </EmailLayout>
+  );
+}
+
+const heading = {
+  fontSize: "24px",
+  fontWeight: "600",
+  color: "#1a1a1a",
+  marginBottom: "24px",
+};
+
+const text = {
+  fontSize: "16px",
+  lineHeight: "26px",
+  color: "#4a4a4a",
+};
+
+const button = {
+  backgroundColor: "#000",
+  color: "#fff",
+  padding: "12px 24px",
+  borderRadius: "6px",
+  fontWeight: "600",
+  textDecoration: "none",
+  display: "inline-block",
+  marginTop: "16px",
+};
+```
+
+## Batch Sending
+
+```ts
+import { resend } from "@/lib/email";
+
+const emails = users.map((user) => ({
+  from: "App <hello@yourdomain.com>",
+  to: user.email,
+  subject: "Weekly digest",
+  react: DigestEmail({ user }),
+}));
+
+// Send up to 100 emails per batch
+await resend.batch.send(emails);
+```
+
+## From Server Actions
+
+```ts
+// actions/invite.ts
+"use server";
+
+import { resend } from "@/lib/email";
+import InviteEmail from "@/emails/invite";
+
+export async function sendInvite(email: string, inviterName: string) {
+  const inviteUrl = await createInviteUrl(email);
+
+  await resend.emails.send({
+    from: "App <invites@yourdomain.com>",
+    to: email,
+    subject: `${inviterName} invited you to join`,
+    react: InviteEmail({ inviterName, inviteUrl }),
+  });
+}
+```
+
+## With Attachments
+
+```ts
+await resend.emails.send({
+  from: "App <reports@yourdomain.com>",
+  to: user.email,
+  subject: "Your export is ready",
+  react: ExportReadyEmail({ filename }),
+  attachments: [
+    {
+      filename: "export.csv",
+      content: csvBuffer,
+    },
+  ],
+});
+```
+
+## File Structure
+
+```
+emails/
+├── components/
+│   ├── layout.tsx
+│   ├── button.tsx
+│   └── footer.tsx
+├── welcome.tsx
+├── password-reset.tsx
+├── invite.tsx
+└── digest.tsx
+
+lib/
+└── email.ts           # Resend client
+```
+
+### Monorepo Structure
+
+```
+packages/
+└── email/
+    ├── src/
+    │   ├── client.ts       # Resend client
+    │   ├── render.ts       # Render utilities
+    │   ├── components/
+    │   │   └── layout.tsx
+    │   └── templates/
+    │       ├── welcome.tsx
+    │       └── invite.tsx
+    └── package.json
+```
+
+```json
+// packages/email/package.json
+{
+  "name": "@project/email",
+  "exports": {
+    ".": "./src/client.ts",
+    "./templates/*": "./src/templates/*.tsx"
+  }
+}
+```
+
+## Preview During Development
+
+```bash
+# Add dev script
+pnpm add -D @react-email/dev
+
+# package.json
+{
+  "scripts": {
+    "email:dev": "email dev --dir emails"
+  }
+}
+```
+
+This starts a preview server at `localhost:3001` where you can view and test templates.
+
+## Common Patterns
+
+### Reply-To
+
+```ts
+await resend.emails.send({
+  from: "App <noreply@yourdomain.com>",
+  replyTo: "support@yourdomain.com",
+  // ...
+});
+```
+
+### Personalized From
+
+```ts
+await resend.emails.send({
+  from: `${senderName} via App <notifications@yourdomain.com>`,
+  // ...
+});
+```
+
+### Conditional Content
+
+```tsx
+export default function NotificationEmail({ events }: { events: Event[] }) {
+  return (
+    <EmailLayout preview={`${events.length} new notifications`}>
+      <Heading>Your notifications</Heading>
+      {events.map((event) => (
+        <Section key={event.id} style={eventRow}>
+          <Text>{event.title}</Text>
+          {event.imageUrl && (
+            <Img src={event.imageUrl} width="100" alt="" />
+          )}
+        </Section>
+      ))}
+    </EmailLayout>
+  );
+}
+```
+
+## Testing
+
+Mock Resend in tests:
+
+```ts
+// vitest.setup.ts
+vi.mock("resend", () => ({
+  Resend: vi.fn().mockImplementation(() => ({
+    emails: {
+      send: vi.fn().mockResolvedValue({ id: "test-id" }),
+    },
+  })),
+}));
+```
+
+## What NOT to Do
+
+```tsx
+// Don't: Complex CSS (email clients don't support it)
+<div className="flex gap-4 grid-cols-2">
+
+// Do: Inline styles with safe properties
+<table><tr><td style={{ padding: "16px" }}>
+```
+
+```tsx
+// Don't: External fonts (unreliable)
+fontFamily: "'Custom Font', sans-serif"
+
+// Do: System font stack
+fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+```
+
+```tsx
+// Don't: Dark mode CSS (limited support)
+@media (prefers-color-scheme: dark)
+
+// Do: Light theme only, or use Resend's dark mode support
+```
+
+
+================================================================================
+## integrations/openrouter.md
+================================================================================
+
+# OpenRouter Integration
+
+OpenRouter provides access to multiple AI models (Claude, GPT-4, Gemini, Llama, etc.) through a single API, with automatic fallbacks and cost optimization.
+
+## Default Model
+
+**Gemini 2.5 Flash** (`google/gemini-2.5-flash`) is the default for new projects:
+- Pricing: $0.30/M input, $2.50/M output
+- Context: 1,048,576 tokens (1M)
+- Multimodal: text, image, audio, video, file input
+- Built-in reasoning/thinking capabilities
+
+Model choice is project-specific—switch based on requirements (coding, reasoning, speed, cost).
+
+## Installation
+
+```bash
+pnpm add @openrouter/ai-sdk-provider ai
+```
+
+## Basic Setup
+
+### Environment Variables
+
+```bash
+OPENROUTER_API_KEY=sk-or-v1-...
+```
+
+### Provider Configuration
+
+```ts
+// lib/ai.ts
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+
+export const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+```
+
+## Usage with Vercel AI SDK
+
+### Text Generation
+
+```ts
+import { generateText } from "ai";
+import { openrouter } from "@/lib/ai";
+
+const { text } = await generateText({
+  model: openrouter("google/gemini-2.5-flash"),
+  prompt: "Explain quantum computing in simple terms",
+});
+```
+
+### Streaming
+
+```ts
+import { streamText } from "ai";
+import { openrouter } from "@/lib/ai";
+
+const result = await streamText({
+  model: openrouter("google/gemini-2.5-flash"),
+  messages: [
+    { role: "user", content: "Write a haiku about programming" }
+  ],
+});
+
+for await (const chunk of result.textStream) {
+  process.stdout.write(chunk);
+}
+```
+
+### With Tools
+
+```ts
+import { generateText, tool } from "ai";
+import { openrouter } from "@/lib/ai";
+import { z } from "zod";
+
+const { text, toolCalls } = await generateText({
+  model: openrouter("google/gemini-2.5-flash"),
+  tools: {
+    weather: tool({
+      description: "Get the current weather",
+      parameters: z.object({
+        location: z.string(),
+      }),
+      execute: async ({ location }) => {
+        return { temperature: 72, conditions: "sunny" };
+      },
+    }),
+  },
+  prompt: "What's the weather in San Francisco?",
+});
+```
+
+## Next.js API Route Example
+
+```ts
+// app/api/chat/route.ts
+import { streamText } from "ai";
+import { openrouter } from "@/lib/ai";
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+
+  const result = await streamText({
+    model: openrouter("google/gemini-2.5-flash"),
+    messages,
+  });
+
+  return result.toDataStreamResponse();
+}
+```
+
+## React Hook Usage
+
+```tsx
+"use client";
+
+import { useChat } from "ai/react";
+
+export function Chat() {
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: "/api/chat",
+  });
+
+  return (
+    <div>
+      {messages.map((m) => (
+        <div key={m.id}>
+          <strong>{m.role}:</strong> {m.content}
+        </div>
+      ))}
+      <form onSubmit={handleSubmit}>
+        <input value={input} onChange={handleInputChange} />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  );
+}
+```
+
+## Cost Optimization
+
+OpenRouter automatically routes to the cheapest available model that matches your requirements. You can also set budget limits:
+
+```ts
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY,
+  headers: {
+    "HTTP-Referer": "https://yoursite.com",
+    "X-Title": "Your App Name",
+  },
+});
+```
+
+## Fallback Models
+
+OpenRouter handles fallbacks automatically, but you can specify preferences:
+
+```ts
+// Will try Gemini first, then fall back to Claude
+const result = await generateText({
+  model: openrouter("google/gemini-2.5-flash", {
+    fallbacks: ["anthropic/claude-sonnet-4"],
+  }),
+  prompt: "Hello",
+});
+```
+
+## Projects Using OpenRouter
+
+- **reccs** - AI-powered recommendations
+- **scenes** - Film/book discovery with AI
+- **throughline** - AI writing assistant
+- **populararchive** - Content transformation
+
+
+================================================================================
+## integrations/fal-ai.md
+================================================================================
+
+# fal.ai Image Generation
+
+fal.ai provides fast image generation APIs.
+
+## Default Models
+
+**GPT-Image 1.5** (`fal-ai/gpt-image-1.5`) - OpenAI's text-to-image model:
+- Pricing: $0.009 (low) to $0.133 (high) per image
+- Supports text-to-image and image editing
+- Sizes: 1024x1024, 1024x1536, 1536x1024
+
+**Gemini 2.5 Flash Image** (`fal-ai/gemini-25-flash-image`) - Google's image generation:
+- Pricing: $0.039/image
+- Aspect ratios: 1:1, 16:9, 4:3, etc.
+
+## Installation
+
+```bash
+pnpm add @fal-ai/client
+```
+
+## Environment Variables
+
+```bash
+FAL_KEY=...
+```
+
+## Setup
+
+```ts
+// lib/fal.ts
+import { fal } from "@fal-ai/client";
+
+fal.config({
+  credentials: process.env.FAL_KEY,
+});
+
+export { fal };
+```
+
+## Basic Image Generation
+
+### GPT-Image 1.5
+
+```ts
+import { fal } from "@/lib/fal";
+
+const result = await fal.subscribe("fal-ai/gpt-image-1.5", {
+  input: {
+    prompt: "A serene mountain landscape at sunset",
+    image_size: "1024x1024",
+    num_images: 1,
+  },
+});
+
+const imageUrl = result.data.images[0].url;
+```
+
+### Gemini 2.5 Flash Image
+
+```ts
+const result = await fal.subscribe("fal-ai/gemini-25-flash-image", {
+  input: {
+    prompt: "Professional headshot of a business executive",
+    aspect_ratio: "1:1",
+  },
+});
+```
+
+## Image Sizes
+
+| Size | Dimensions | Use Case |
+|------|------------|----------|
+| `square` | 1024x1024 | Avatars, icons |
+| `square_hd` | 1536x1536 | High-res squares |
+| `portrait_4_3` | 768x1024 | Portraits |
+| `portrait_16_9` | 576x1024 | Tall portraits |
+| `landscape_4_3` | 1024x768 | Standard landscape |
+| `landscape_16_9` | 1024x576 | Wide landscape |
+
+## Advanced Options
+
+```ts
+const result = await fal.subscribe("fal-ai/gpt-image-1.5", {
+  input: {
+    prompt: "A cyberpunk city at night",
+    image_size: "1536x1024",
+    num_images: 4,
+    quality: "high", // "low", "medium", "high"
+  },
+});
+```
+
+## Image Editing
+
+GPT-Image 1.5 supports image editing:
+
+```ts
+const result = await fal.subscribe("fal-ai/gpt-image-1.5", {
+  input: {
+    prompt: "Add a cat sitting on the chair",
+    image_url: "https://example.com/room.jpg",
+  },
+});
+```
+
+## Polling vs Subscription
+
+```ts
+// Subscription (recommended) - auto-polls until complete
+const result = await fal.subscribe("fal-ai/gpt-image-1.5", {
+  input: { prompt: "..." },
+  logs: true,
+  onQueueUpdate: (update) => {
+    if (update.status === "IN_PROGRESS") {
+      console.log("Processing...", update.logs);
+    }
+  },
+});
+
+// Manual queue for long operations
+const { request_id } = await fal.queue.submit("fal-ai/gpt-image-1.5", {
+  input: { prompt: "..." },
+});
+
+// Check status later
+const status = await fal.queue.status("fal-ai/gpt-image-1.5", {
+  requestId: request_id,
+});
+
+// Get result when done
+const result = await fal.queue.result("fal-ai/gpt-image-1.5", {
+  requestId: request_id,
+});
+```
+
+## Next.js Server Action
+
+```ts
+// actions/generate-image.ts
+"use server";
+
+import { fal } from "@/lib/fal";
+
+export async function generateImage(prompt: string) {
+  const result = await fal.subscribe("fal-ai/gpt-image-1.5", {
+    input: {
+      prompt,
+      image_size: "1024x1024",
+      num_images: 1,
+    },
+  });
+
+  return result.data.images[0].url;
+}
+```
+
+## Rate Limiting
+
+fal.ai has per-model rate limits. For production:
+
+```ts
+async function generateWithRetry(prompt: string, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fal.subscribe("fal-ai/gpt-image-1.5", {
+        input: { prompt },
+      });
+    } catch (error: any) {
+      if (error.status === 429 && i < maxRetries - 1) {
+        await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
+        continue;
+      }
+      throw error;
+    }
+  }
+}
+```
+
+## Projects Using fal.ai
+
+- **faceplacer** - Face replacement
+- **populararchive** - Article illustrations
+
+
+================================================================================
+## integrations/voyage-embeddings.md
+================================================================================
+
+# Voyage AI Embeddings
+
+Voyage AI provides state-of-the-art text embeddings optimized for semantic search and RAG applications.
+
+## Installation
+
+```bash
+pnpm add voyage-ai-provider voyageai
+```
+
+## Environment Variables
+
+```bash
+VOYAGE_API_KEY=pa-...
+```
+
+## Basic Setup
+
+### Provider Configuration
+
+```ts
+// lib/embeddings.ts
+import { createVoyage } from "voyage-ai-provider";
+
+export const voyage = createVoyage({
+  apiKey: process.env.VOYAGE_API_KEY,
+});
+```
+
+### Direct Client (Alternative)
+
+```ts
+import VoyageAI from "voyageai";
+
+const voyage = new VoyageAI({
+  apiKey: process.env.VOYAGE_API_KEY,
+});
+```
+
+## Generating Embeddings
+
+### With AI SDK Provider
+
+```ts
+import { embed, embedMany } from "ai";
+import { voyage } from "@/lib/embeddings";
+
+// Single text
+const { embedding } = await embed({
+  model: voyage.textEmbeddingModel("voyage-3.5"),
+  value: "What is machine learning?",
+});
+
+// Multiple texts
+const { embeddings } = await embedMany({
+  model: voyage.textEmbeddingModel("voyage-3.5"),
+  values: [
+    "What is machine learning?",
+    "How does neural networks work?",
+    "Explain deep learning",
+  ],
+});
+```
+
+### With Direct Client
+
+```ts
+const result = await voyage.embed({
+  input: ["Text to embed", "Another text"],
+  model: "voyage-3.5",
+});
+
+const embeddings = result.data.map((d) => d.embedding);
+```
+
+## Text Embedding Models
+
+| Model | Dimensions | Best For |
+|-------|------------|----------|
+| `voyage-3-large` | 2048 | SOTA text, 9.74% better than OpenAI v3 large |
+| `voyage-3.5` | 1024 | General purpose text |
+| `voyage-3.5-lite` | 512 | Faster, lower cost |
+| `voyage-code-3` | 1024 | Code retrieval |
+| `voyage-finance-2` | 1024 | Financial documents |
+| `voyage-law-2` | 1024 | Legal documents |
+
+All models support dimension reduction (2048, 1024, 512, 256) via the `output_dimension` parameter.
+
+## Multimodal Embeddings
+
+For image and video search:
+
+| Model | Best For |
+|-------|----------|
+| `voyage-multimodal-3` | Text + images, 41% better than CLIP on table/figure retrieval |
+| `voyage-multimodal-3.5` | Text + images + video |
+
+Multimodal models process interleaved text + images (unlike CLIP which separates them). 200M text tokens + 150B pixels free per account.
+
+```ts
+// Multimodal embedding with image
+const { embedding } = await embed({
+  model: voyage.textEmbeddingModel("voyage-multimodal-3"),
+  value: {
+    content: [
+      { type: "text", text: "Product description" },
+      { type: "image_url", image_url: { url: "https://..." } },
+    ],
+  },
+});
+```
+
+## Database Storage (Neon + pgvector)
+
+### Schema
+
+```ts
+// db/schema.ts
+import { pgTable, text, vector, serial } from "drizzle-orm/pg-core";
+
+export const documents = pgTable("documents", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  embedding: vector("embedding", { dimensions: 1024 }),
+});
+```
+
+### Enable pgvector
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+### Insert with Embedding
+
+```ts
+import { db } from "@/db";
+import { documents } from "@/db/schema";
+import { embed } from "ai";
+import { voyage } from "@/lib/embeddings";
+
+async function indexDocument(content: string) {
+  const { embedding } = await embed({
+    model: voyage.textEmbeddingModel("voyage-3.5"),
+    value: content,
+  });
+
+  await db.insert(documents).values({
+    content,
+    embedding,
+  });
+}
+```
+
+### Semantic Search
+
+```ts
+import { sql } from "drizzle-orm";
+import { db } from "@/db";
+import { documents } from "@/db/schema";
+import { embed } from "ai";
+import { voyage } from "@/lib/embeddings";
+
+async function search(query: string, limit = 10) {
+  const { embedding } = await embed({
+    model: voyage.textEmbeddingModel("voyage-3.5"),
+    value: query,
+  });
+
+  const results = await db
+    .select({
+      id: documents.id,
+      content: documents.content,
+      similarity: sql<number>`1 - (${documents.embedding} <=> ${embedding})`,
+    })
+    .from(documents)
+    .orderBy(sql`${documents.embedding} <=> ${embedding}`)
+    .limit(limit);
+
+  return results;
+}
+```
+
+## RAG Pattern
+
+```ts
+import { generateText } from "ai";
+import { openrouter } from "@/lib/ai";
+
+async function ragQuery(question: string) {
+  // 1. Find relevant documents
+  const relevantDocs = await search(question, 5);
+
+  // 2. Build context
+  const context = relevantDocs
+    .map((doc) => doc.content)
+    .join("\n\n---\n\n");
+
+  // 3. Generate answer with context
+  const { text } = await generateText({
+    model: openrouter("anthropic/claude-sonnet-4"),
+    system: `Answer questions based on the provided context. If the context doesn't contain relevant information, say so.`,
+    prompt: `Context:\n${context}\n\nQuestion: ${question}`,
+  });
+
+  return text;
+}
+```
+
+## Batch Processing
+
+For large datasets, batch embeddings efficiently:
+
+```ts
+async function batchEmbed(texts: string[], batchSize = 100) {
+  const allEmbeddings: number[][] = [];
+
+  for (let i = 0; i < texts.length; i += batchSize) {
+    const batch = texts.slice(i, i + batchSize);
+
+    const { embeddings } = await embedMany({
+      model: voyage.textEmbeddingModel("voyage-3.5"),
+      values: batch,
+    });
+
+    allEmbeddings.push(...embeddings);
+
+    // Rate limiting
+    if (i + batchSize < texts.length) {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  }
+
+  return allEmbeddings;
+}
+```
+
+## Projects Using Voyage
+
+- **reccs** - Semantic search for recommendations
+- **scenes** - Film/book similarity matching
+- **populararchive** - Content embeddings for search
+
+
+================================================================================
+## integrations/uploadthing.md
+================================================================================
+
+# UploadThing
+
+UploadThing provides simple, type-safe file uploads for Next.js with built-in CDN hosting.
+
+## Installation
+
+```bash
+pnpm add uploadthing @uploadthing/react
+```
+
+## Environment Variables
+
+```bash
+UPLOADTHING_TOKEN=...
+```
+
+Get your token from [uploadthing.com](https://uploadthing.com).
+
+## Server Setup
+
+### File Router
+
+```ts
+// app/api/uploadthing/core.ts
+import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { auth } from "@clerk/nextjs/server";
+
+const f = createUploadthing();
+
+export const ourFileRouter = {
+  // Image uploader with auth
+  imageUploader: f({ image: { maxFileSize: "4MB", maxFileCount: 4 } })
+    .middleware(async () => {
+      const { userId } = await auth();
+      if (!userId) throw new Error("Unauthorized");
+      return { userId };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("Upload complete for user:", metadata.userId);
+      console.log("File URL:", file.url);
+      return { uploadedBy: metadata.userId };
+    }),
+
+  // PDF uploader
+  pdfUploader: f({ pdf: { maxFileSize: "16MB" } })
+    .middleware(async () => {
+      const { userId } = await auth();
+      if (!userId) throw new Error("Unauthorized");
+      return { userId };
+    })
+    .onUploadComplete(async ({ file }) => {
+      return { url: file.url };
+    }),
+
+  // Any file type
+  fileUploader: f(["image", "pdf", "text"])
+    .middleware(async () => ({ userId: "anon" }))
+    .onUploadComplete(async ({ file }) => {
+      return { url: file.url };
+    }),
+} satisfies FileRouter;
+
+export type OurFileRouter = typeof ourFileRouter;
+```
+
+### Route Handler
+
+```ts
+// app/api/uploadthing/route.ts
+import { createRouteHandler } from "uploadthing/next";
+import { ourFileRouter } from "./core";
+
+export const { GET, POST } = createRouteHandler({
+  router: ourFileRouter,
+});
+```
+
+## Client Setup
+
+### Generate Components
+
+```ts
+// lib/uploadthing.ts
+import {
+  generateUploadButton,
+  generateUploadDropzone,
+  generateReactHelpers,
+} from "@uploadthing/react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
+
+export const UploadButton = generateUploadButton<OurFileRouter>();
+export const UploadDropzone = generateUploadDropzone<OurFileRouter>();
+export const { useUploadThing, uploadFiles } = generateReactHelpers<OurFileRouter>();
+```
+
+## Usage
+
+### Upload Button
+
+```tsx
+"use client";
+
+import { UploadButton } from "@/lib/uploadthing";
+
+export function ImageUpload() {
+  return (
+    <UploadButton
+      endpoint="imageUploader"
+      onClientUploadComplete={(res) => {
+        console.log("Files:", res);
+        const urls = res.map((file) => file.url);
+        // Handle uploaded URLs
+      }}
+      onUploadError={(error) => {
+        console.error("Error:", error);
+      }}
+    />
+  );
+}
+```
+
+### Upload Dropzone
+
+```tsx
+"use client";
+
+import { UploadDropzone } from "@/lib/uploadthing";
+
+export function FileDropzone() {
+  return (
+    <UploadDropzone
+      endpoint="fileUploader"
+      onClientUploadComplete={(res) => {
+        console.log("Uploaded:", res);
+      }}
+      onUploadError={(error) => {
+        console.error("Error:", error);
+      }}
+      appearance={{
+        container: "border-2 border-dashed border-gray-300 rounded-lg p-8",
+        uploadIcon: "text-gray-400",
+        label: "text-gray-600",
+        allowedContent: "text-gray-400 text-sm",
+      }}
+    />
+  );
+}
+```
+
+### Programmatic Upload
+
+```tsx
+"use client";
+
+import { useUploadThing } from "@/lib/uploadthing";
+
+export function CustomUpload() {
+  const { startUpload, isUploading } = useUploadThing("imageUploader", {
+    onClientUploadComplete: (res) => {
+      console.log("Uploaded:", res);
+    },
+    onUploadError: (error) => {
+      console.error("Error:", error);
+    },
+  });
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const result = await startUpload(Array.from(files));
+    console.log("Result:", result);
+  };
+
+  return (
+    <div>
+      <input
+        type="file"
+        onChange={handleFileChange}
+        disabled={isUploading}
+        multiple
+      />
+      {isUploading && <p>Uploading...</p>}
+    </div>
+  );
+}
+```
+
+### Upload from Server Action
+
+```ts
+// lib/uploadthing-server.ts
+import { UTApi } from "uploadthing/server";
+
+export const utapi = new UTApi();
+```
+
+```ts
+// actions/upload.ts
+"use server";
+
+import { utapi } from "@/lib/uploadthing-server";
+
+export async function uploadFromUrl(url: string) {
+  const response = await utapi.uploadFilesFromUrl(url);
+  return response.data?.url;
+}
+
+export async function deleteFile(fileKey: string) {
+  await utapi.deleteFiles(fileKey);
+}
+```
+
+## File Types Reference
+
+```ts
+// Common configurations
+f({ image: { maxFileSize: "4MB" } })           // Images only
+f({ pdf: { maxFileSize: "16MB" } })            // PDFs only
+f({ video: { maxFileSize: "256MB" } })         // Videos only
+f({ audio: { maxFileSize: "32MB" } })          // Audio only
+f({ blob: { maxFileSize: "8MB" } })            // Any file type
+f(["image", "pdf"])                            // Multiple types
+
+// With count limits
+f({ image: { maxFileSize: "4MB", maxFileCount: 10 } })
+
+// Custom mime types
+f({ "image/png": { maxFileSize: "4MB" } })
+```
+
+## Styling
+
+### Tailwind CSS
+
+```tsx
+<UploadDropzone
+  endpoint="imageUploader"
+  appearance={{
+    container: "mt-4 border-2 border-dashed border-gray-200 rounded-xl",
+    uploadIcon: "text-gray-400 w-12 h-12",
+    label: "text-gray-600 text-lg font-medium",
+    allowedContent: "text-gray-400 text-sm",
+    button: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700",
+  }}
+/>
+```
+
+### Hide Default Button Text
+
+```tsx
+<UploadButton
+  endpoint="imageUploader"
+  content={{
+    button: "Upload Image",
+    allowedContent: "Images up to 4MB",
+  }}
+/>
+```
+
+## Projects Using UploadThing
+
+- **faceplacer** - Face replacement images
+- **scenes** - Film/book cover uploads
+- **populararchive** - Article images
+
+
+================================================================================
+## integrations/biome-ultracite.md
+================================================================================
+
+# Biome + Ultracite
+
+Ultracite is a zero-config Biome preset that enforces strict code quality standards. Biome is the underlying Rust-based formatter and linter (replaces ESLint + Prettier).
+
+## Why Biome?
+
+| Feature | ESLint + Prettier | Biome |
+|---------|-------------------|-------|
+| Speed | ~5-10 seconds | ~50-200ms |
+| Config files | 2+ files | 1 file |
+| Dependencies | 10+ packages | 1 package |
+| Language | JavaScript | Rust |
+
+## Installation
+
+```bash
+pnpm add -D @biomejs/biome ultracite
+```
+
+## Configuration
+
+### Option 1: Extend Ultracite (Recommended)
+
+Create `biome.json`:
+
+```json
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.5/schema.json",
+  "extends": ["ultracite"]
+}
+```
+
+### Option 2: Initialize Fresh
+
+```bash
+pnpm exec ultracite init
+```
+
+This creates a `biome.json` with Ultracite defaults.
+
+## Commands
+
+### Ultracite CLI
+
+```bash
+# Check for issues (no changes)
+pnpm exec ultracite check
+
+# Fix all issues
+pnpm exec ultracite fix
+
+# Fix including unsafe changes
+pnpm exec ultracite fix --unsafe
+
+# Diagnose configuration
+pnpm exec ultracite doctor
+```
+
+### Direct Biome CLI
+
+```bash
+# Lint and fix
+pnpm exec biome check src --write
+
+# Format only
+pnpm exec biome format src --write
+
+# Lint only (no format)
+pnpm exec biome lint src --write
+```
+
+## Package.json Scripts
+
+### Single App
+
+```json
+{
+  "scripts": {
+    "lint": "biome check src --write",
+    "format": "biome format src --write"
+  }
+}
+```
+
+### Monorepo
+
+```json
+{
+  "scripts": {
+    "lint": "turbo run lint && biome check .",
+    "format": "ultracite fix"
+  }
+}
+```
+
+## Key Rules Enforced
+
+### Formatting
+- Double quotes for strings
+- Semicolons always
+- Trailing commas (ES5 style)
+- 2-space indentation
+- 80-character line width (soft)
+
+### TypeScript
+- No `any` type
+- Use `interface` for objects, `type` for unions
+- Use `import type` for type-only imports
+- No non-null assertions (`!`)
+- No `as any` casts
+
+### React
+- Hooks called at top level only
+- All dependencies in hook arrays
+- Keys required in iterables (no index keys)
+- No component definitions inside components
+- Accessible components (ARIA, semantic HTML)
+
+### Modern JavaScript
+- `for...of` over `.forEach()`
+- Template literals over concatenation
+- Optional chaining (`?.`) and nullish coalescing (`??`)
+- `const` by default, `let` when needed, never `var`
+
+### Imports
+- Organized: external → internal → relative
+- Node builtins prefixed: `node:fs`, `node:path`
+- No namespace imports (`import * as`)
+
+## Git Hooks Integration
+
+### When to Use Pre-commit Hooks
+
+| Project Size | Recommendation |
+|--------------|----------------|
+| New/Small (<50 files) | Lint + typecheck on commit |
+| Medium (50-200 files) | Lint on commit, typecheck on push |
+| Large (200+ files) | Lint staged only, typecheck in CI |
+
+For new projects, always start with full checks on commit. You can relax later if it becomes slow.
+
+### Setup Husky + lint-staged
+
+```bash
+pnpm add -D husky lint-staged
+pnpm exec husky init
+```
+
+### New Projects: Lint + Typecheck on Commit
+
+#### package.json
+
+```json
+{
+  "scripts": {
+    "prepare": "husky",
+    "typecheck": "tsc --noEmit"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "pnpm exec ultracite fix"
+    ],
+    "*.{json,jsonc,css,md,mdx}": [
+      "pnpm exec biome format --write"
+    ]
+  }
+}
+```
+
+#### .husky/pre-commit
+
+```bash
+#!/bin/sh
+pnpm lint-staged
+pnpm typecheck
+```
+
+### Large Projects: Staged Lint Only
+
+For larger codebases where full typecheck is slow (>5 seconds):
+
+#### .husky/pre-commit
+
+```bash
+#!/bin/sh
+pnpm lint-staged
+```
+
+#### .husky/pre-push (typecheck before push)
+
+```bash
+#!/bin/sh
+pnpm typecheck
+```
+
+Create pre-push hook:
+```bash
+echo '#!/bin/sh\npnpm typecheck' > .husky/pre-push
+chmod +x .husky/pre-push
+```
+
+### Monorepo Setup
+
+For Turborepo projects, scope checks to affected packages:
+
+#### .husky/pre-commit
+
+```bash
+#!/bin/sh
+pnpm lint-staged
+pnpm turbo typecheck --filter='...[HEAD^]'
+```
+
+This only typechecks packages affected by the current commit.
+
+### Skipping Hooks (Escape Hatch)
+
+When you need to commit WIP code:
+
+```bash
+git commit --no-verify -m "WIP: work in progress"
+```
+
+Use sparingly. CI should still catch issues.
+
+## VS Code Integration
+
+Install the Biome extension, then add to `.vscode/settings.json`:
+
+```json
+{
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  }
+}
+```
+
+## Ignoring Files
+
+In `biome.json`:
+
+```json
+{
+  "extends": ["ultracite"],
+  "files": {
+    "ignore": [
+      "node_modules",
+      ".next",
+      "dist",
+      "drizzle"
+    ]
+  }
+}
+```
+
+## Custom Overrides
+
+```json
+{
+  "extends": ["ultracite"],
+  "linter": {
+    "rules": {
+      "complexity": {
+        "noForEach": "warn"
+      }
+    }
+  },
+  "formatter": {
+    "lineWidth": 100
+  }
+}
+```
+
+## Migration from ESLint + Prettier
+
+1. Remove old dependencies:
+```bash
+pnpm remove eslint prettier eslint-config-next @typescript-eslint/eslint-plugin @typescript-eslint/parser
+```
+
+2. Remove old config files:
+```bash
+rm .eslintrc* .prettierrc* eslint.config.* prettier.config.*
+```
+
+3. Install Biome:
+```bash
+pnpm add -D @biomejs/biome ultracite
+pnpm exec ultracite init
+```
+
+4. Update scripts:
+```json
+{
+  "lint": "biome check src --write",
+  "format": "biome format src --write"
+}
+```
+
+5. Run initial fix:
+```bash
+pnpm exec ultracite fix
+```
+
+## Troubleshooting
+
+### "Cannot find configuration"
+
+```bash
+pnpm exec ultracite doctor
+```
+
+### Conflicts with other formatters
+
+Disable other formatters in VS Code:
+```json
+{
+  "prettier.enable": false,
+  "eslint.enable": false
+}
+```
+
+### Specific file issues
+
+Check with verbose output:
+```bash
+pnpm exec biome check src/problem-file.ts --verbose
+```
+
+### Tailwind v4 CSS Directives
+
+Biome 2.3+ supports parsing Tailwind v4 CSS directives (`@theme`, `@source`, etc.):
+
+```bash
+pnpm exec biome check src --css-parse-tailwind-directives
+```
+
+Or in `biome.json`:
+```json
+{
+  "css": {
+    "parser": {
+      "tailwindCssDirectives": true
+    }
+  }
+}
+```
+
+
+================================================================================
+## rules/code-style.md
+================================================================================
+
+# Code Style
+
+## Formatting & Syntax
+- MUST: Use Biome as the single source of truth for formatting.
+- MUST: Use double quotes for strings and include semicolons.
+- MUST: Include trailing commas (ES5: objects, arrays, function params).
+- SHOULD: Wrap all arrow function parameters in parentheses.
+- SHOULD: Prefer `for...of` over `Array.forEach` and index-based `for` loops.
+- SHOULD: Prefer object spread (`{...obj}`) over `Object.assign()`.
+- SHOULD: Prefer template literals over string concatenation.
+- MUST: Use strict equality: `===` and `!==` exclusively.
+- MUST: Use kebab-case ASCII filenames. Components: `component-name.tsx`; utilities: `util-name.ts`.
+- SHOULD: Order imports external → internal → relative, and MUST use `node:` for Node builtins (Biome organizes imports).
+
+## Naming & Comments
+- MUST: Prefer clear function/variable names over inline comments.
+- SHOULD: Include brief inline comments only when behavior is non-obvious.
+- SHOULD: Use JSDoc for exported functions/components when additional context improves DX.
+- MUST: Keep comments minimal and focused on "why" rather than "what".
+- NEVER: Create `.md` documentation files for application code (README.md files for packages and the `.ruler` system are allowed).
+- NEVER: Use emojis in code or commit messages.
+
+## Canonical Code Principle
+- MUST: Code is always canonical. No backward compatibility layers, deprecation warnings, or legacy patterns.
+- MUST: When updating patterns or APIs, update ALL usage sites immediately. No migration periods.
+- NEVER: Leave comments about "old way" vs "new way". The current code IS the way.
+- NEVER: Add compatibility shims or adapters for old patterns. Remove old patterns entirely.
+- MUST: Refactor fearlessly. The codebase reflects current best practices only.
+
+## Patterns
+- SHOULD: Use regex literals over `RegExp` constructor.
+- MUST: Use `indexOf`/`lastIndexOf` for simple value lookups (not `findIndex`/`findLastIndex`).
+- MUST: Use `.flatMap()` over `map().flat()`.
+
+## Cleanup
+- SHOULD: Use `knip` to find and remove unused code when making large changes.
+
+
+================================================================================
+## rules/typescript.md
+================================================================================
+
+# TypeScript Rules
+
+## Type Definitions
+- MUST: Use `interface` over `type` for object type definitions.
+- MUST: Use `type` for unions, mapped types, and conditional types.
+- MUST: Use `as const` for literal type assertions.
+- MUST: Use `import type` and `export type` for type-only imports/exports.
+- NEVER: Use `unknown` as a generic constraint (e.g., `T extends unknown`).
+
+## Type Safety
+- NEVER: Use `any`. Prefer precise types or `unknown` with narrowing.
+- NEVER: Cast to `any` (`as any`, `as unknown as`). Fix types at the source.
+- NEVER: Use unsafe `as` casts to bypass errors. Wrong types = wrong code.
+- NEVER: Use non-null assertions (`!`). Fix types at source.
+- NEVER: Shadow variables from outer scope.
+
+## Error Handling
+- NEVER: Add unnecessary `try`/`catch`. Let errors propagate.
+- SHOULD: Only catch when you can recover, transform, or report.
+
+## Simplicity
+- SHOULD: Only create abstractions when actually needed. Inline is fine.
+- SHOULD: Avoid helper functions when a simple inline expression suffices.
+
+## Style
+- SHOULD: Use numeric separators in large number literals (e.g., `1_000_000`).
+
+
+================================================================================
+## rules/react.md
+================================================================================
+
+# React Rules
+
+Scope: All apps and packages.
+
+## Component Design
+- MUST: Each component does one thing well (single responsibility). Keep it minimal and "dumb" by default (rendering-focused).
+- MUST: When logic grows, extract business logic into custom hooks. Components focus on composition and render.
+- MUST: Avoid massive JSX blocks. Compose smaller, focused components instead.
+- SHOULD: Colocate code that changes together (component + hook + types in same folder).
+- SHOULD: Organize complex components in a folder:
+  - `components/complex-component/complex-component-root.tsx`
+  - `components/complex-component/complex-component-item.tsx`
+  - `components/complex-component/index.ts`
+
+## Component Naming
+- MUST: Use specific, descriptive names that convey purpose. Avoid generic suffixes like `-content`, `-wrapper`, `-container`, `-component`.
+- NEVER: Create "god components" with vague names like `PageContent`, `MainWrapper`, `ComponentContainer`.
+- SHOULD: Name components by their domain role: `FolderThumbnail`, `ProductCard`, `UserAvatar` — not `ItemContent`, `CardWrapper`.
+- SHOULD: Part components should describe their role: `FolderActionMenu`, `DialogHeader`, `FormFieldError` — not just `Actions`, `Header`, `Error`.
+
+## Design System First
+- MUST: Use design system primitives for layout and typography instead of raw HTML with custom classes.
+- MUST: Prefer `Stack`, `HStack`, `VStack`, `Flex`, `Grid` for layout over raw `<div>` with flex/grid classes.
+- MUST: Prefer `Heading` component for headings (`h1-h6`) and `Text` for paragraph/body text over raw elements with custom typography classes.
+- MUST: Use `Button` component variants instead of raw `<button>` with custom styling.
+- SHOULD: Compose UI from design system primitives; only reach for custom `className` when design system doesn't cover the case.
+- SHOULD: When missing a primitive, propose adding it to the design system rather than building one-off solutions.
+
+## Styling Approach
+- MUST: Minimize custom `className` usage in app components; rely on design system component props.
+- SHOULD: Use semantic props (`variant="muted"`, `size="sm"`, `gap="4"`) over utility classes.
+- SHOULD: When custom classes are needed, keep them minimal and focused on layout/positioning only.
+- NEVER: Recreate design system patterns with raw HTML + Tailwind when a component exists.
+
+## State Management
+- SHOULD: Use `useState` for strictly local, ephemeral UI state.
+- SHOULD: Use Zustand stores for shared state across the app (or across non-trivial feature boundaries).
+- SHOULD: For complex component-internal sharing, provide a local Context or a local Zustand store/provider that is scoped to the component tree.
+- MUST: Avoid prop drilling for widely shared state; prefer Context or Zustand.
+
+## Props & Types
+- MUST: Properly type all props (no `any`). Reuse shared types where possible.
+- SHOULD: Avoid passing large or generic objects in props. Prefer clear, specific props (IDs or primitives) and derive the rest inside.
+- SHOULD: Keep prop surfaces stable to reduce re-renders (prefer primitives/IDs over new object/array instances).
+
+## Documentation
+- SHOULD: Include minimal JSDoc at the component/hook level to explain intent and any non-obvious behavior.
+- SHOULD: Document props that have constraints, side-effects, or require non-obvious usage.
+
+## Hooks & Effects
+- MUST: Prefer custom hooks for business logic, data fetching, and side-effects.
+- MUST: Avoid `useEffect` unless absolutely needed. Prefer derived state, event handlers, or server-side logic.
+- SHOULD: Memoize only when necessary (`useMemo`/`useCallback`), and prefer moving logic into hooks first.
+
+## JSX
+- NEVER: Pass children as props. Nest children between opening and closing tags.
+- NEVER: Define components inside other components.
+- NEVER: Reassign props in components.
+- NEVER: Add children to void elements (`<img>`, `<br>`, `<input>`).
+- MUST: Add `key` prop to elements in iterables.
+- NEVER: Use array indices as keys (use stable IDs).
+
+## React 19
+- MUST: Use ref-as-prop instead of legacy `forwardRef`
+- MUST: Use `use()` hook for reading promises and context
+- MUST: Use `<Context>` instead of `<Context.Provider>`
+- SHOULD: Use `useActionState` for form handling with server actions
+
+```tsx
+// ref-as-prop (no forwardRef)
+function Input({ ref, ...props }: Props & { ref?: React.Ref<HTMLInputElement> }) {
+  return <input ref={ref} {...props} />;
+}
+
+// use() hook for context
+function ThemeButton() {
+  const theme = use(ThemeContext);
+  return <button className={theme.buttonClass}>Click</button>;
+}
+
+// use() hook for promises in render
+function UserProfile({ userPromise }: { userPromise: Promise<User> }) {
+  const user = use(userPromise);
+  return <div>{user.name}</div>;
+}
+
+// Context without Provider
+<ThemeContext value={theme}>
+  {children}
+</ThemeContext>
+
+// useActionState for forms
+function LoginForm() {
+  const [state, action, pending] = useActionState(loginAction, initialState);
+  return (
+    <form action={action}>
+      <input name="email" />
+      <button disabled={pending}>Log in</button>
+      {state.error && <p>{state.error}</p>}
+    </form>
+  );
+}
+```
+
+## Imports & Hooks Usage
+- MUST: Do not use namespace access for hooks in app code (e.g., `React.useCallback`, `React.useMemo`, `React.useState`). Import hooks directly.
+  - Correct: `import { useCallback, useMemo, useState } from "react";`
+  - Avoid: `import * as React from "react";` then `React.useCallback(...)`
+- SHOULD: If JSX runtime requires it, use `import React from "react";` plus named hooks — or `import type React` when only typing is needed.
+
+## File & Naming
+- SHOULD: One file per component by default; group complex components in a folder.
+- SHOULD: Use kebab-case filenames, `component-name.tsx`.
+
+## Utilities, Hooks, Functions
+- MUST: Keep utilities, hooks, and general functions single-purpose.
+- SHOULD: Organize by responsibility in individual folders where appropriate (e.g., `hooks/use-thing/`, `utils/format-price/`).
+- SHOULD: Co-locate utilities that are truly component-specific next to the component, otherwise place shared items under a common folder (e.g., `lib/`, `hooks/`, `utils/`).
+
+
+================================================================================
+## rules/nextjs.md
+================================================================================
+
+# Next.js Rules
+
+## Components
+- SHOULD: Use Server Components by default. Add `"use client"` only when needed.
+- MUST: Use App Router metadata API for `<head>` content, not `next/head`.
+- NEVER: Use async client components. Use Server Components for async operations.
+
+## Assets & Loading
+- MUST: Use `next/font` for fonts and `next/script` for third-party scripts.
+- MUST: Use `next/image` for all images.
+- SHOULD: Above-the-fold images use `loading="eager"` or `fetchPriority="high"`. Use `priority` sparingly.
+
+## Proxy (replaces Middleware in Next.js 16+)
+- MUST: New projects use `proxy.ts` instead of `middleware.ts`
+- MUST: Export function named `proxy`, not `middleware`
+- NOTE: Runs on Node.js only (Edge runtime not supported)
+- SHOULD: Migrate existing middleware.ts using codemod
+
+```tsx
+// src/proxy.ts (Next.js 16+)
+import { NextRequest, NextResponse } from "next/server";
+
+export function proxy(request: NextRequest) {
+  // Auth check, redirects, rewrites, etc.
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};
+```
+
+### Migration from middleware.ts
+
+```bash
+npx @next/codemod@latest upgrade latest
+```
+
+Or manually:
+1. Rename `middleware.ts` → `proxy.ts`
+2. Rename exported function `middleware` → `proxy`
+3. Remove Edge runtime APIs (not supported in proxy)
+
+## Caching (Next.js 16+)
+- MUST: Use `use cache` directive for explicit caching (opt-in model)
+- MUST: Enable `cacheComponents: true` in next.config.ts for component caching
+- SHOULD: Use `use cache: remote` in serverless for shared cache
+- NEVER: Access cookies()/headers()/searchParams inside cached scope
+
+```tsx
+// Explicit caching with use cache directive
+async function getData(id: string) {
+  "use cache";
+  return db.query.items.findFirst({ where: eq(items.id, id) });
+}
+
+// Component-level caching
+async function CachedComponent() {
+  "use cache";
+  const data = await getData();
+  return <div>{data.title}</div>;
+}
+```
+
+## Feature Structure
+- SHOULD: Add new features under `apps/<app>/features/<feature>/`.
+- SHOULD: Within a feature, organize by kind: `components/`, `hooks/`, `utils/`, `lib/`, `types/`.
+- SHOULD: Prefer feature-local state (Context or local Zustand) scoped to the feature tree.
+- SHOULD: Place shared components in `apps/<app>/components/` rather than a feature folder.
+
+
+================================================================================
+## rules/tailwind.md
+================================================================================
+
+# Tailwind v4
+
+Pithy rules for agents. Follow these and styles will work across apps.
+
+## Configuration Rules
+- MUST: Use config-free setup only; do not add `tailwind.config.*` files.
+- MUST: Use PostCSS with `@tailwindcss/postcss` plugin.
+- MUST: Configure source paths with `@source` directives in CSS.
+
+## Source Path Configuration
+- MUST: Tailwind v4 only generates classes it finds under `@source`. Point to all places where class names live.
+
+For single apps:
+```css
+@import "tailwindcss";
+
+@source "../**/*.{ts,tsx}";
+```
+
+For monorepos with shared config:
+```css
+@import "tailwindcss";
+
+/* Scan UI package and any apps that include Tailwind classes */
+@source "../ui/src/**/*.{ts,tsx}";                      /* UI components */
+@source "../../apps/**/src/**/*.{ts,tsx,mdx}";          /* app sources */
+@source "../../apps/**/**/*.stories.@(ts|tsx|mdx)";     /* stories */
+```
+
+If spacing/radius/colors are missing anywhere, your `@source` paths are wrong.
+
+## Theme Tokens
+
+Map CSS variables to Tailwind v4 tokens so utilities like `bg-primary` work:
+
+```css
+@theme {
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+}
+```
+
+## Gray Palette
+- MUST: Use `gray-*` for all neutral/gray colors (e.g., `bg-gray-100`, `text-gray-500`).
+- NEVER: Use other gray-like palettes (`neutral`, `zinc`, `slate`, `stone`) — standardize on `gray`.
+
+## Prohibitions
+- NEVER: Safelist classes — fix `@source` or token mapping instead.
+- NEVER: Add `tailwind.config.js` or `tailwind.config.ts` files.
+- NEVER: Rely on `important` hacks.
+
+## Quick Checklist
+- MUST: App imports Tailwind CSS once (e.g., in `globals.css`).
+- MUST: App has PostCSS plugin `{ "@tailwindcss/postcss": {} }`.
+- MUST: `@source` globs cover any new package/app paths you add.
+- MUST: Token mappings cover the utilities your components use.
+
+
+================================================================================
+## rules/git.md
+================================================================================
+
+# Git Workflow
+
+## Commits
+
+- NEVER: Auto-commit changes; allow review first.
+- MUST: Stage and review changes before committing.
+- SHOULD: Use conventional commit messages when practical.
+- SHOULD: Use `gh` CLI for GitHub operations (PRs, issues, etc.).
+
+## Pre-commit Hooks
+
+- MUST: New projects use Husky + lint-staged for pre-commit checks.
+- MUST: Run lint (Biome/Ultracite) on staged files before commit.
+- SHOULD: Run typecheck (`tsc --noEmit`) on commit for small/new projects.
+- SHOULD: Move typecheck to pre-push hook for larger projects (>200 files).
+- NEVER: Disable hooks permanently; use `--no-verify` sparingly for WIP commits.
+
+### Setup
+
+```bash
+pnpm add -D husky lint-staged
+pnpm exec husky init
+```
+
+### Pre-commit Hook (.husky/pre-commit)
+
+```bash
+#!/bin/sh
+pnpm lint-staged
+pnpm typecheck
+```
+
+### lint-staged Config (package.json)
+
+```json
+{
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": ["pnpm exec ultracite fix"],
+    "*.{json,jsonc,css,md,mdx}": ["pnpm exec biome format --write"]
+  }
+}
+```
+
+
+================================================================================
+## rules/testing.md
+================================================================================
+
+# Testing
+
+- MUST: Write unit tests for core logic.
+- SHOULD: Write integration tests for core logic.
+- MUST: Write E2E tests with Playwright under `e2e/` or `apps/<app>/e2e/` for critical flows.
+- SHOULD: Co-locate test files with source or use `__tests__` directories consistently.
+- SHOULD: Run `pnpm test` (workspace-wide) or package-scoped tests before merging.
+
+## Commands
+
+Single app:
+- `pnpm test` — run unit tests (vitest)
+- `pnpm test:e2e` — run E2E tests (playwright)
+
+Monorepo:
+- `pnpm test` — run all tests across packages
+- `pnpm --filter <pkg> test` — run tests for specific package
+- `pnpm --filter <app> test:e2e` — run E2E tests for specific app
+
+## Vitest 4.0+
+
+Key features in Vitest 4:
+
+- **Browser Mode (stable)** — Real browser testing, not JSDOM
+- **Visual Regression Testing** — Built-in screenshot comparison
+- **Playwright Traces** — `--browser.trace=on` for debugging
+- **`toBeInViewport` matcher** — Assert element visibility
+
+For component tests in real browsers:
+```bash
+pnpm add -D vitest @vitest/browser-playwright
+```
+
+```ts
+// vitest.config.ts
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    browser: {
+      enabled: true,
+      provider: "playwright",
+      instances: [{ browser: "chromium" }],
+    },
+  },
+});
+```
+
+## Playwright 1.57+
+
+Key features:
+
+- **Chrome for Testing** — Uses Chrome instead of Chromium on non-ARM
+- **Node.js 18+** — Node 16 removed, 18 deprecated
+- **`wait` field** — Regex matching for webServer readiness
+- **Playwright Agents** — AI-assisted test generation
+
+### Generate tests interactively:
+```bash
+npx playwright codegen http://localhost:4000
+```
+
+### webServer with regex wait:
+```ts
+// playwright.config.ts
+export default defineConfig({
+  webServer: {
+    command: "pnpm dev",
+    url: "http://localhost:4000",
+    wait: /ready on/i, // Regex match on stdout
+    reuseExistingServer: !process.env.CI,
+  },
+});
+```
+
+## Component Testing
+
+**Vitest Browser Mode** — Unit/component tests in real browser:
+```tsx
+import { render, screen } from "@testing-library/react";
+import { expect, test } from "vitest";
+import { Button } from "./button";
+
+test("renders button", async () => {
+  render(<Button>Click me</Button>);
+  await expect.element(screen.getByRole("button")).toBeInViewport();
+});
+```
+
+**Playwright Component Testing** — E2E-style component tests:
+```bash
+pnpm add -D @playwright/experimental-ct-react
+```
+
+Both support React 19.
+
+
+================================================================================
+## rules/env.md
+================================================================================
+
+# Environment Rules
+
+Scope: All apps and packages.
+
+## Goals
+- Single source of truth for environment schemas.
+- No ad-hoc `process.env` reads in app/package code.
+- Clear separation between server-only vars and client-safe vars.
+
+## Packages vs Apps
+- MUST: In packages and server libraries, import from a shared env package (e.g., `@project/env/server`).
+- SHOULD: In Next.js apps, import from the env package's next export (e.g., `@project/env/next`).
+- SHOULD: Apps create their own `env.ts` files for app-specific variables.
+- NEVER: Read `process.env.X` directly in feature code. Only the env schema files should touch `process.env`.
+
+## Schemas and Sources
+- Shared package: `packages/env`
+  - `/server` — server-only variables (Node/server contexts)
+  - `/next` — Next.js app variables (server + client)
+- App-local schema: `apps/<app>/env.ts` for app-specific variables (optional).
+
+## Client vs Server
+- MUST: Client-available vars MUST be prefixed `NEXT_PUBLIC_`.
+- MUST: Do not expose secrets (API keys, DB URLs) to the client.
+- SHOULD: Narrow exposure: only export what the client needs.
+
+## Adding Variables
+1. Decide the scope and add the key to the correct schema.
+2. Update `runtimeEnv` mapping for every added key.
+3. Use the typed import in code (no direct `process.env`).
+
+## Safety
+- NEVER: Log secrets.
+- NEVER: Commit `.env` files.
+- SHOULD: Fail fast on validation errors (default behavior).
+
+Rationale: Centralizing schema validation improves safety, DX, and consistency across the monorepo and prevents silent runtime errors.
+
+
+================================================================================
+## rules/turborepo.md
+================================================================================
+
+# Turborepo Configuration Rules
+
+Scope: Monorepo tasks and package setup.
+
+## Just-in-Time Packages
+- MUST: Export source TypeScript from packages via `exports` (no `dist` builds).
+- SHOULD: Use source-mapped imports for better DX.
+
+## Exports Example
+
+```json
+{
+  "name": "@project/utils",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  }
+}
+```
+
+For packages with both `.ts` and `.tsx`:
+
+```json
+{
+  "exports": {
+    "./*": {
+      "types": "./src/*.ts",
+      "default": "./src/*.tsx"
+    }
+  }
+}
+```
+
+Rationale: JIT packages enable fast dev loops, simpler builds, and precise types across package boundaries.
+
+## turbo.json Example
+
+```json
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "test": {
+      "dependsOn": ["^test"]
+    }
+  }
+}
+```
+
+
+================================================================================
+## rules/integrations.md
+================================================================================
+
+# Integrations (Adapters)
+
+Rules for external service integrations.
+
+- MUST: Fail fast with no silent fallbacks.
+- MUST: Throw typed errors (e.g., `ServiceError`) for misconfiguration or upstream non-2xx responses.
+- MUST: Be deterministic in production paths; no stubs/hashes/"best effort" behavior.
+- SHOULD: Provide test-only mocks in separate adaptors and wire them only in tests.
+- SHOULD: Validate configuration at boot to avoid partial functionality.
+
+
+================================================================================
+## rules/interface/typography.md
+================================================================================
+
+# Interface: Typography
+
+Source references:
+- Vercel Web Interface Guidelines: https://vercel.com/design/guidelines
+- Rauno Freiberg: https://interfaces.rauno.me/
+
+## Rendering
+
+- MUST: Apply font smoothing for legibility:
+
+```css
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+```
+
+- MUST: Prevent iOS landscape zoom:
+
+```css
+html {
+  -webkit-text-size-adjust: 100%;
+}
+```
+
+## Font Weight
+
+- MUST: Minimum body font weight: 400
+- SHOULD: Medium headings: 500–600 weight
+- MUST: Maintain consistent weight on hover/selection (no layout shift from bold)
+
+## Fluid Sizing
+
+- SHOULD: Use `clamp()` for responsive typography:
+
+```css
+h1 {
+  font-size: clamp(2rem, 5vw, 4.5rem);
+}
+
+p {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+}
+```
+
+## Numeric Content
+
+- MUST: Use tabular figures for aligned numbers:
+
+```css
+.table-cell,
+.timer,
+.price {
+  font-variant-numeric: tabular-nums;
+}
+```
+
+- SHOULD: Use a monospace font (like Geist Mono) for numeric comparisons
+
+## Font Loading
+
+- SHOULD: Subset fonts based on language and content to reduce payload
+- MUST: Use `font-display: swap` or `optional` to prevent invisible text
+- SHOULD: Preload critical fonts:
+
+```html
+<link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+```
+
+## Selection
+
+- SHOULD: Style `::selection` for brand consistency:
+
+```css
+::selection {
+  background: hsl(var(--primary) / 0.2);
+  color: inherit;
+}
+```
+
+- MUST: Unset gradients on `::selection` (not supported, looks broken)
+
+## Content Formatting
+
+- MUST: Use the ellipsis character `…` (not `...`)
+- MUST: Use curly quotes `"` `"` and `'` `'` (not straight quotes)
+- SHOULD: Avoid widows/orphans in headings
+- MUST: Use non-breaking spaces to glue units: `10\u00A0MB`, `⌘\u00A0K`
+
+
+================================================================================
+## rules/interface/animation.md
+================================================================================
+
+# Interface: Animation
+
+Source references:
+- Vercel Web Interface Guidelines: https://vercel.com/design/guidelines
+- Rauno Freiberg: https://interfaces.rauno.me/
+
+## Principles
+
+- MUST: Honor `prefers-reduced-motion` (provide reduced variant)
+- SHOULD: Prefer CSS > Web Animations API > JS libraries
+- MUST: Animate compositor-friendly props (`transform`, `opacity`); avoid layout/repaint props (`top/left/width/height`)
+- SHOULD: Animate only to clarify cause/effect or add deliberate delight
+- SHOULD: Choose easing to match the change (size/distance/trigger)
+- MUST: Animations are interruptible and input-driven (avoid autoplay)
+- MUST: Correct `transform-origin` (motion starts where it "physically" should)
+
+## Duration & Timing
+
+- SHOULD: Keep animation duration under 200ms for immediacy
+- SHOULD: Skip animations entirely for frequent, low-novelty interactions (right-click menus, list reorders)
+- MUST: Avoid transitions when switching themes (flash of intermediate state)
+
+## Scale Values
+
+Use consistent scale transforms:
+
+| Element | Scale on press/hide |
+|---------|---------------------|
+| Dialogs, modals | `0.95`–`0.98` + opacity |
+| Buttons | `0.96`–`0.98` |
+| Cards, list items | `0.98`–`0.99` |
+| Tooltips, popovers | `0.95` + opacity |
+
+```css
+.dialog[data-state="closed"] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+```
+
+## Performance
+
+- MUST: Pause looping animations when off-screen (use Intersection Observer)
+- SHOULD: Use `scroll-behavior: smooth` with appropriate `scroll-margin-top` for anchor navigation
+
+```css
+html {
+  scroll-behavior: smooth;
+}
+
+[id] {
+  scroll-margin-top: 80px; /* Account for fixed header */
+}
+```
+
+
+================================================================================
+## rules/interface/forms.md
+================================================================================
+
+# Interface: Forms
+
+Source references:
+- Vercel Design – Web Interface Guidelines: https://vercel.com/design/guidelines
+- Web Interface Guidelines: https://github.com/vercel-labs/web-interface-guidelines
+
+## Behavior
+- MUST: Hydration-safe inputs (no lost focus/value)
+- NEVER: Block paste in `<input>/<textarea>`
+- MUST: Loading buttons show spinner and keep original label
+- MUST: Enter submits focused text input. In `<textarea>`, ⌘/Ctrl+Enter submits; Enter adds newline
+- MUST: Keep submit enabled until request starts; then disable, show spinner, use idempotency key
+- MUST: Don't block typing; accept free text and validate after
+- MUST: Allow submitting incomplete forms to surface validation
+- MUST: Errors inline next to fields; on submit, focus first error
+- MUST: `autocomplete` + meaningful `name`; correct `type` and `inputmode`
+- SHOULD: Disable spellcheck for emails/codes/usernames
+- SHOULD: Placeholders end with ellipsis and show example pattern (e.g., `+1 (123) 456-7890`, `sk-012345…`)
+- MUST: Warn on unsaved changes before navigation
+- MUST: Compatible with password managers & 2FA; allow pasting one-time codes
+- MUST: Trim values to handle text expansion trailing spaces
+- MUST: No dead zones on checkboxes/radios; label+control share one generous hit target
+
+## Autofocus
+- SHOULD: Autofocus on desktop when there's a single primary input; rarely on mobile (to avoid layout shift)
+
+
+================================================================================
+## rules/interface/interactions.md
+================================================================================
+
+# Interface: Interactions
+
+Source references:
+- Vercel Web Interface Guidelines: https://vercel.com/design/guidelines
+- Rauno Freiberg: https://interfaces.rauno.me/
+
+## Keyboard
+- MUST: Full keyboard support per WAI-ARIA APG patterns
+  - https://www.w3.org/WAI/ARIA/apg/patterns/
+- MUST: Visible focus rings (`:focus-visible`; group with `:focus-within`)
+- MUST: Manage focus (trap, move, and return) per APG patterns
+
+## Targets & Input
+- MUST: Hit target ≥24px (mobile ≥44px). If visual <24px, expand hit area
+- MUST: Mobile `<input>` font-size ≥16px to avoid zoom-on-focus
+- MUST: Set viewport meta for app-like consistency (locks zoom):
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+```
+
+- MUST: `touch-action: manipulation` to prevent double-tap zoom; set `-webkit-tap-highlight-color` to match design
+
+## State & Navigation
+- MUST: URL reflects state (deep-link filters/tabs/pagination/expanded panels). Prefer libs like https://nuqs.dev
+- MUST: Back/Forward restores scroll
+- MUST: Links are links—use `<a>/<Link>` for navigation (support Cmd/Ctrl/middle-click)
+
+## Feedback
+- SHOULD: Optimistic UI; reconcile on response; on failure show error and rollback or offer Undo
+- MUST: Confirm destructive actions or provide Undo window
+- MUST: Use polite `aria-live` for toasts/inline validation
+- SHOULD: Ellipsis (`…`) for options that open follow-ups (e.g., "Rename…") and loading states (e.g., "Loading…", "Saving…", "Generating…")
+
+## Touch/Drag/Scroll
+
+- MUST: Design forgiving interactions (generous targets, clear affordances; avoid finickiness)
+- MUST: Delay first tooltip in a group; subsequent peers no delay
+- MUST: Intentional `overscroll-behavior: contain` in modals/drawers
+- MUST: During drag, disable text selection and set `inert` on dragged element/containers
+- MUST: No "dead-looking" interactive zones—if it looks clickable, it is
+- SHOULD: Hide hover states on touch devices:
+
+```css
+@media (hover: hover) {
+  .button:hover {
+    background: var(--hover-bg);
+  }
+}
+```
+
+- MUST: Replace default tap highlight with custom style:
+
+```css
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+```
+
+## Menus & Dropdowns
+
+- SHOULD: Trigger dropdown menus on `mousedown`, not `click` (feels more responsive)
+- SHOULD: Use "prediction cone" pattern for nested menus (delay close when moving toward submenu)
+- MUST: Eliminate dead zones between list items—increase padding instead of margins
+
+## Interactive Elements
+
+- SHOULD: Apply `user-select: none` to interactive element text (buttons, tabs)
+- MUST: Apply `pointer-events: none` on decorative elements (glows, gradients, overlays)
+- SHOULD: Toggles take immediate effect without confirmation dialogs
+
+
+================================================================================
+## rules/interface/layout.md
+================================================================================
+
+# Interface: Layout
+
+Source references:
+- Vercel Design – Web Interface Guidelines: https://vercel.com/design/guidelines
+- Web Interface Guidelines: https://github.com/vercel-labs/web-interface-guidelines
+
+## Principles
+- SHOULD: Optical alignment; adjust by ±1px when perception beats geometry
+- MUST: Deliberate alignment to grid/baseline/edges/optical centers—no accidental placement
+- SHOULD: Balance icon/text lockups (stroke/weight/size/spacing/color)
+- MUST: Verify mobile, laptop, ultra-wide (simulate ultra-wide at 50% zoom)
+- MUST: Respect safe areas (use `env(safe-area-inset-*)`)
+- MUST: Avoid unwanted scrollbars; fix overflows
+
+
+================================================================================
+## rules/interface/design.md
+================================================================================
+
+# Interface: Design
+
+Source references:
+- Vercel Design – Web Interface Guidelines: https://vercel.com/design/guidelines
+- Web Interface Guidelines: https://github.com/vercel-labs/web-interface-guidelines
+
+## Visual Design
+- SHOULD: Layered shadows (ambient + direct)
+- SHOULD: Crisp edges via semi-transparent borders + shadows
+- SHOULD: Nested radii: child ≤ parent; concentric
+- SHOULD: Hue consistency: tint borders/shadows/text toward bg hue
+- MUST: Accessible charts (color-blind-friendly palettes)
+- MUST: Meet contrast—prefer APCA over WCAG 2
+  - https://apcacontrast.com/
+- MUST: Increase contrast on `:hover/:active/:focus`
+- SHOULD: Match browser UI to bg
+- SHOULD: Avoid gradient banding (use masks when needed)
+
+
+================================================================================
+## rules/interface/performance.md
+================================================================================
+
+# Interface: Performance
+
+Source references:
+- Vercel Web Interface Guidelines: https://vercel.com/design/guidelines
+- Rauno Freiberg: https://interfaces.rauno.me/
+
+## Principles
+
+- SHOULD: Test iOS Low Power Mode and macOS Safari
+- MUST: Measure reliably (disable extensions that skew runtime)
+- MUST: Track and minimize re-renders (React DevTools/React Scan)
+- MUST: Profile with CPU/network throttling
+- MUST: Batch layout reads/writes; avoid unnecessary reflows/repaints
+- MUST: Mutations (`POST/PATCH/DELETE`) target <500 ms
+- SHOULD: Prefer uncontrolled inputs; make controlled loops cheap (keystroke cost)
+- MUST: Virtualize large lists (e.g., TanStack Virtual or `virtua`)
+- MUST: Preload only above-the-fold images; lazy-load the rest
+- MUST: Prevent CLS from images (explicit dimensions or reserved space)
+
+## CSS Performance
+
+- SHOULD: Avoid large `blur()` values on filters/backdrops (GPU-heavy)
+- SHOULD: Replace blurred rectangles with radial gradients when possible (avoids banding)
+- SHOULD: Use `transform: translateZ(0)` sparingly for GPU layer promotion
+- SHOULD: Toggle `will-change` only during unperformant scroll animations, then remove
+
+```css
+/* Only during scroll */
+.scrolling .heavy-element {
+  will-change: transform;
+}
+```
+
+## Video & Media
+
+- MUST: Pause/unmount off-screen videos (especially on iOS)
+- MUST: Use `muted` and `playsinline` for iOS autoplay:
+
+```html
+<video autoplay loop muted playsinline>
+  <source src="video.mp4" type="video/mp4">
+</video>
+```
+
+## React-Specific
+
+- SHOULD: Use refs for real-time DOM updates that bypass render cycles (e.g., mouse position, scroll)
+- SHOULD: Detect and adapt to user device capabilities and network conditions
+
+
+================================================================================
+## rules/interface/content-accessibility.md
+================================================================================
+
+# Interface: Content & Accessibility
+
+Source references:
+- Vercel Web Interface Guidelines: https://vercel.com/design/guidelines
+- Rauno Freiberg: https://interfaces.rauno.me/
+
+## ARIA
+
+- NEVER: Use `aria-hidden="true"` on focusable elements
+- MUST: Label elements need text and an associated input
+- MUST: All anchors must be valid and navigable
+- MUST: Accurate names (`aria-label`), decorative elements `aria-hidden`, verify in the Accessibility Tree
+- MUST: Icon-only buttons have descriptive `aria-label`
+- MUST: Prefer native semantics (`button`, `a`, `label`, `table`) before ARIA
+- NEVER: Add tooltips to disabled buttons (inaccessible to keyboard users)
+- MUST: Tooltips shouldn't contain interactive content
+- MUST: Always render images with `<img>` tags for screen readers (not CSS backgrounds)
+- MUST: HTML illustrations need explicit `aria-label` (raw DOM is announced otherwise)
+
+## Focus
+
+- SHOULD: Use `box-shadow` for focus rings instead of `outline` (respects border-radius):
+
+```css
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+}
+```
+
+- MUST: Enable arrow-key navigation (↑↓) in sequential focusable lists
+- SHOULD: Enable ⌘/Ctrl+Backspace deletion in sequential lists
+
+## Content & Accessibility
+- SHOULD: Inline help first; tooltips last resort
+- MUST: Skeletons mirror final content to avoid layout shift
+- MUST: `<title>` matches current context
+- MUST: No dead ends; always offer next step/recovery
+- MUST: Design empty/sparse/dense/error states
+- SHOULD: Curly quotes (" "); avoid widows/orphans
+- MUST: Tabular numbers for comparisons (`font-variant-numeric: tabular-nums` or a mono like Geist Mono)
+- MUST: Redundant status cues (not color-only); icons have text labels
+- MUST: Don't ship the schema—visuals may omit labels but accessible names still exist
+- MUST: Use the ellipsis character `…` (not `...`)
+- MUST: `scroll-margin-top` on headings for anchored links; include a "Skip to content" link; hierarchical `<h1–h6>`
+- MUST: Resilient to user-generated content (short/avg/very long)
+- MUST: Locale-aware dates/times/numbers/currency
+- SHOULD: Right-clicking the nav logo surfaces brand assets
+- MUST: Use non-breaking spaces to glue terms: `10\u00A0MB`, `⌘\u00A0+\u00A0K`, `Vercel\u00A0SDK`

@@ -258,8 +258,3 @@ f({ "image/png": { maxFileSize: "4MB" } })
 />
 ```
 
-## Projects Using UploadThing
-
-- **faceplacer** - Face replacement images
-- **scenes** - Film/book cover uploads
-- **populararchive** - Article images
