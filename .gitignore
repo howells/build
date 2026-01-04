@@ -2,3 +2,8 @@
 *.swp
 *.swo
 *~
+
+# VitePress
+node_modules
+.vitepress/cache
+.vitepress/dist
