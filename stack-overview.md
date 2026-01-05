@@ -2,6 +2,9 @@
 
 The recommended production stack for new projects (January 2026).
 
+> **Note:** This document lists the *current recommended versions* for a complete, compatible stack.
+> For strict **minimum version requirements** enforced by agents, see **[rules/versions.md](./rules/versions.md)**.
+
 ## Core Framework
 
 | Layer | Technology | Version | Notes |

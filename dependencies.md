@@ -2,6 +2,9 @@
 
 Complete dependency list with current versions and installation commands.
 
+> **Note:** The specific versions listed below serve as a "Bill of Materials" for copy-pasting.
+> For strict **minimum version requirements**, refer to **[rules/versions.md](./rules/versions.md)**.
+
 ## Philosophy
 
 Prefer battle-tested packages over custom implementations:

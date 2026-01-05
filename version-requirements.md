@@ -2,21 +2,23 @@
 
 Minimum and mandatory versions for new projects as of January 2026.
 
-## Mandatory Versions (Non-Negotiable)
+## Mandatory Versions
 
-These versions are **required** for all new projects. Do not use older versions.
+**The authoritative list of minimum version requirements is maintained in [rules/versions.md](./rules/versions.md).**
 
-| Package | Minimum | Current | Rationale |
-|---------|---------|---------|-----------|
-| next | **16.0.0** | 16.1.x | Turbopack stable, improved caching, React 19 support |
-| react | **19.0.0** | 19.2.x | ref-as-prop, no forwardRef, use() hook |
-| typescript | **5.8.0** | 5.9.x | Improved inference, config inheritance |
-| node | **20.9.0** | 22.x | Required by Next.js 16 |
-| tailwindcss | **4.0.0** | 4.1.x | Config-free, CSS-first, smaller bundles |
-| @biomejs/biome | **2.0.0** | 2.3.x | ESLint/Prettier replacement |
-| zod | **4.0.0** | 4.x | Breaking changes from v3, better inference |
-| @tanstack/react-query | **5.0.0** | 5.90.x | Suspense-first, streaming |
-| @trpc/server | **11.0.0** | 11.x | Breaking API changes from v10 |
+Refer to that file for the strict "MUST" constraints enforced by AI agents. The section below explains the *reasoning* behind these choices.
+
+### Rationale & Key Drivers
+
+| Package | Why Update? |
+|---------|-------------|
+| **next** | Turbopack stable, async params/headers, `use cache` directive |
+| **react** | `ref` as prop (no `forwardRef`), `use()` hook, Server Components |
+| **typescript** | Config inheritance, improved inference, performance |
+| **node** | Required runtime for Next.js 16+ |
+| **tailwindcss** | v4 is config-free, CSS-first, and significantly faster |
+| **zod** | v4 introduces breaking inference changes and better optionality handling |
+| **biome** | Replaces ESLint/Prettier with a single, faster tool |
 
 ## Breaking Changes to Know
 
