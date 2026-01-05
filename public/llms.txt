@@ -54,7 +54,10 @@
 
 # Stack Overview
 
-Current production stack as of January 2026, extracted from 15 active projects.
+The recommended production stack for new projects (January 2026).
+
+> **Note:** This document lists the *current recommended versions* for a complete, compatible stack.
+> For strict **minimum version requirements** enforced by agents, see **[rules/versions.md](./rules/versions.md)**.
 
 ## Core Framework
 
@@ -92,7 +95,7 @@ Current production stack as of January 2026, extracted from 15 active projects.
 | postgres | 3.x | Node PostgreSQL driver |
 
 ### Alternative: Supabase
-Some projects use `@supabase/supabase-js` + `@supabase/ssr` instead of Neon.
+For projects needing Supabase features (Auth, Realtime, Storage), use `@supabase/supabase-js` + `@supabase/ssr` instead of Neon.
 
 ## Authentication
 
@@ -100,7 +103,7 @@ Some projects use `@supabase/supabase-js` + `@supabase/ssr` instead of Neon.
 |------|---------|-------|
 | @clerk/nextjs | 6.x | Primary auth solution |
 | @clerk/testing | 1.x | Test utilities |
-| better-auth | 1.x | Alternative (throughline) |
+| better-auth | 1.x | Self-hosted alternative |
 
 ## API Layer
 
@@ -227,21 +230,23 @@ Example: For a new dropdown, use `@base-ui/react` Menu instead of `@radix-ui/rea
 
 Minimum and mandatory versions for new projects as of January 2026.
 
-## Mandatory Versions (Non-Negotiable)
+## Mandatory Versions
 
-These versions are **required** for all new projects. Do not use older versions.
+**The authoritative list of minimum version requirements is maintained in [rules/versions.md](./rules/versions.md).**
 
-| Package | Minimum | Current | Rationale |
-|---------|---------|---------|-----------|
-| next | **16.0.0** | 16.1.x | Turbopack stable, improved caching, React 19 support |
-| react | **19.0.0** | 19.2.x | ref-as-prop, no forwardRef, use() hook |
-| typescript | **5.8.0** | 5.9.x | Improved inference, config inheritance |
-| node | **20.9.0** | 22.x | Required by Next.js 16 |
-| tailwindcss | **4.0.0** | 4.1.x | Config-free, CSS-first, smaller bundles |
-| @biomejs/biome | **2.0.0** | 2.3.x | ESLint/Prettier replacement |
-| zod | **4.0.0** | 4.x | Breaking changes from v3, better inference |
-| @tanstack/react-query | **5.0.0** | 5.90.x | Suspense-first, streaming |
-| @trpc/server | **11.0.0** | 11.x | Breaking API changes from v10 |
+Refer to that file for the strict "MUST" constraints enforced by AI agents. The section below explains the *reasoning* behind these choices.
+
+### Rationale & Key Drivers
+
+| Package | Why Update? |
+|---------|-------------|
+| **next** | Turbopack stable, async params/headers, `use cache` directive |
+| **react** | `ref` as prop (no `forwardRef`), `use()` hook, Server Components |
+| **typescript** | Config inheritance, improved inference, performance |
+| **node** | Required runtime for Next.js 16+ |
+| **tailwindcss** | v4 is config-free, CSS-first, and significantly faster |
+| **zod** | v4 introduces breaking inference changes and better optionality handling |
+| **biome** | Replaces ESLint/Prettier with a single, faster tool |
 
 ## Breaking Changes to Know
 
@@ -1463,16 +1468,16 @@ export async function GET(request: Request) {
 
 # Project Structure Patterns
 
-Two patterns emerge across your projects: **monorepos** (Turborepo) and **single apps**.
+Two patterns work well: **monorepos** (Turborepo + pnpm) and **single apps**.
 
 ## Decision Matrix
 
-| Use Case | Pattern | Example Projects |
-|----------|---------|------------------|
-| Multiple apps sharing code | Monorepo | kinecho, materia, blomma |
-| Single app with internal packages | Monorepo | throughline, beacon |
-| Standalone app, no code sharing | Single App | notiflow, reccs, faceplacer |
-| Rapid prototype | Single App | Start here, extract later |
+| Use Case | Pattern |
+|----------|---------|
+| Multiple apps sharing code | Monorepo |
+| Single app with internal packages | Monorepo |
+| Standalone app, no code sharing | Single App |
+| Rapid prototype | Single App (extract to monorepo later if needed) |
 
 ## Monorepo Structure (Turborepo + pnpm)
 
@@ -1685,6 +1690,9 @@ This enables:
 # Dependencies Reference
 
 Complete dependency list with current versions and installation commands.
+
+> **Note:** The specific versions listed below serve as a "Bill of Materials" for copy-pasting.
+> For strict **minimum version requirements**, refer to **[rules/versions.md](./rules/versions.md)**.
 
 ## Philosophy
 
@@ -2019,7 +2027,7 @@ When updating, keep these groups aligned:
 
 # Standard Scripts
 
-Consistent npm scripts across all projects.
+Consistent npm scripts for Next.js projects.
 
 ## Development
 
@@ -2031,24 +2039,22 @@ Consistent npm scripts across all projects.
 | `build` | `next build` or `turbo run build` | Production build |
 | `start` | `next start` | Production server |
 
-### Port Assignments
+### Port Assignment Strategy
 
-| Project | Port |
-|---------|------|
-| notiflow | 4000 |
-| reccs | 5001 |
-| populararchive | 7000 |
-| scenes | 8000 |
-| kinecho | 9000 |
-| massiveconnects | 10000 |
-| faceplacer | 11000 |
-| beacon | 12000 |
-| beeline | 13000 |
-| blomma web | 14000 |
-| blomma admin | 14001 |
-| blomma api | 14002 |
-| designround | 15000 |
-| throughline | 16000 |
+Use consistent, memorable ports across projects to avoid conflicts:
+
+```bash
+# Single apps: pick a port in the 4000-5000 range
+next dev --turbopack --port 4000
+
+# Monorepos: use related ports for apps in the same project
+# web: 4000, admin: 4001, api: 4002
+```
+
+Common ranges:
+- **4000-5000**: Main web apps
+- **5001-6000**: Secondary apps, APIs
+- **8000-9000**: Dev tools, studios
 
 ## Code Quality
 
@@ -2446,7 +2452,7 @@ git add CLAUDE.md .cursorrules AGENTS.md
 
 ## Complete Ruleset
 
-See the `rules/` directory in this documentation for a complete, copy-paste-ready ruleset based on the materia project:
+See the `rules/` directory for a complete, copy-paste-ready ruleset:
 
 - [rules/README.md](./rules/README.md) - Rule directory index
 - [rules/code-style.md](./rules/code-style.md) - Formatting and syntax
@@ -2774,12 +2780,6 @@ test("authenticated user can access dashboard", async ({ page }) => {
 });
 ```
 
-## Projects Using Clerk
-
-- **notiflow**, **reccs**, **faceplacer** - User auth
-- **kinecho**, **beacon** - User + organization auth
-- **scenes**, **throughline** - User profiles
-- **blomma** - Multi-app auth (web + admin)
 
 
 ================================================================================
@@ -3133,12 +3133,6 @@ export type Post = InferSelectModel<typeof posts>;
 export type NewPost = InferInsertModel<typeof posts>;
 ```
 
-## Projects Using Drizzle + Neon
-
-All projects use this stack:
-- **notiflow**, **reccs**, **faceplacer** (single app)
-- **kinecho**, **beacon**, **scenes** (monorepo packages/db)
-- **populararchive**, **materia**, **designround** (monorepo)
 
 
 ================================================================================
@@ -3480,12 +3474,6 @@ export const postsRouter = router({
 });
 ```
 
-## Projects Using tRPC
-
-- **kinecho** - Full tRPC API layer
-- **massiveconnects** - Content API
-- **beacon** - Location services API
-- **throughline** - AI writing API
 
 
 ================================================================================
@@ -4073,7 +4061,7 @@ stores/                         # App-wide stores (if any)
 
 **Principle**: Keep stores small and feature-local. Don't create a global store package—each feature owns its state.
 
-## Patterns from Projects
+## Common Patterns
 
 ### Toggle with Same-Value Detection
 
@@ -5117,12 +5105,6 @@ const result = await generateText({
 });
 ```
 
-## Projects Using OpenRouter
-
-- **reccs** - AI-powered recommendations
-- **scenes** - Film/book discovery with AI
-- **throughline** - AI writing assistant
-- **populararchive** - Content transformation
 
 
 ================================================================================
@@ -5308,10 +5290,6 @@ async function generateWithRetry(prompt: string, maxRetries = 3) {
 }
 ```
 
-## Projects Using fal.ai
-
-- **faceplacer** - Face replacement
-- **populararchive** - Article illustrations
 
 
 ================================================================================
@@ -5555,11 +5533,6 @@ async function batchEmbed(texts: string[], batchSize = 100) {
 }
 ```
 
-## Projects Using Voyage
-
-- **reccs** - Semantic search for recommendations
-- **scenes** - Film/book similarity matching
-- **populararchive** - Content embeddings for search
 
 
 ================================================================================
@@ -5826,11 +5799,6 @@ f({ "image/png": { maxFileSize: "4MB" } })
 />
 ```
 
-## Projects Using UploadThing
-
-- **faceplacer** - Face replacement images
-- **scenes** - Film/book cover uploads
-- **populararchive** - Article images
 
 
 ================================================================================
@@ -6294,18 +6262,18 @@ Scope: All apps and packages.
 - SHOULD: Part components should describe their role: `FolderActionMenu`, `DialogHeader`, `FormFieldError` — not just `Actions`, `Header`, `Error`.
 
 ## Design System First
-- MUST: Use design system primitives for layout and typography instead of raw HTML with custom classes.
-- MUST: Prefer `Stack`, `HStack`, `VStack`, `Flex`, `Grid` for layout over raw `<div>` with flex/grid classes.
-- MUST: Prefer `Heading` component for headings (`h1-h6`) and `Text` for paragraph/body text over raw elements with custom typography classes.
-- MUST: Use `Button` component variants instead of raw `<button>` with custom styling.
+- MUST: Check for the existence of design system primitives (`Stack`, `Grid`, `Container`, `Text`, `Heading`) in the project before using them.
+- MUST: IF primitives exist: Use them for layout and typography instead of raw HTML.
+- MUST: IF primitives DO NOT exist: Use raw HTML (`div`, `h1`, `p`) with utility classes.
+- SHOULD: When missing a primitive, prefer defining it over one-off `className` usage if the pattern repeats.
+- SHOULD: Use `Button` component variants instead of raw `<button>` with custom styling.
 - SHOULD: Compose UI from design system primitives; only reach for custom `className` when design system doesn't cover the case.
-- SHOULD: When missing a primitive, propose adding it to the design system rather than building one-off solutions.
 
 ## Styling Approach
-- MUST: Minimize custom `className` usage in app components; rely on design system component props.
-- SHOULD: Use semantic props (`variant="muted"`, `size="sm"`, `gap="4"`) over utility classes.
+- MUST: Minimize custom `className` usage in app components; rely on design system component props (if available).
+- SHOULD: Use semantic props (`variant="muted"`, `size="sm"`) over utility classes.
 - SHOULD: When custom classes are needed, keep them minimal and focused on layout/positioning only.
-- NEVER: Recreate design system patterns with raw HTML + Tailwind when a component exists.
+
 
 ## State Management
 - SHOULD: Use `useState` for strictly local, ephemeral UI state.
@@ -6645,6 +6613,41 @@ Key features:
 - **Node.js 18+** — Node 16 removed, 18 deprecated
 - **`wait` field** — Regex matching for webServer readiness
 - **Playwright Agents** — AI-assisted test generation
+
+### Test IDs
+
+- MUST: Use `data-testid` attributes for E2E test selectors.
+- MUST: Configure Playwright to use `testid` as the attribute name.
+- NEVER: Select by text content, CSS classes, or DOM structure—these change frequently.
+- SHOULD: Use semantic locators (`getByRole`, `getByLabel`) for accessible elements.
+
+```ts
+// playwright.config.ts
+import { defineConfig } from "@playwright/test";
+
+export default defineConfig({
+  use: {
+    testIdAttribute: "data-testid",
+  },
+});
+```
+
+In components:
+```tsx
+<button data-testid="submit-button">Submit</button>
+<div data-testid="user-profile">{user.name}</div>
+```
+
+In tests:
+```ts
+// Preferred: test IDs for custom elements
+await page.getByTestId("submit-button").click();
+await expect(page.getByTestId("user-profile")).toContainText("John");
+
+// Also good: semantic locators for standard elements
+await page.getByRole("button", { name: "Submit" }).click();
+await page.getByLabel("Email").fill("user@example.com");
+```
 
 ### Generate tests interactively:
 ```bash
@@ -7104,8 +7107,11 @@ Source references:
 
 ## Visual Design
 - SHOULD: Layered shadows (ambient + direct)
+  - *Example:* `shadow-[0_2px_4px_rgba(0,0,0,0.05),0_12px_24px_rgba(0,0,0,0.1)]`
 - SHOULD: Crisp edges via semi-transparent borders + shadows
+  - *Example:* `border border-black/5 dark:border-white/10`
 - SHOULD: Nested radii: child ≤ parent; concentric
+  - *Math:* `outerRadius - padding = innerRadius`
 - SHOULD: Hue consistency: tint borders/shadows/text toward bg hue
 - MUST: Accessible charts (color-blind-friendly palettes)
 - MUST: Meet contrast—prefer APCA over WCAG 2
@@ -7113,6 +7119,7 @@ Source references:
 - MUST: Increase contrast on `:hover/:active/:focus`
 - SHOULD: Match browser UI to bg
 - SHOULD: Avoid gradient banding (use masks when needed)
+
 
 
 ================================================================================
