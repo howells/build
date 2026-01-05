@@ -3,6 +3,12 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "Build",
   description: "Reference for building modern web apps with Next.js, React, and TypeScript",
+  
+  vite: {
+    css: {
+      postcss: "./postcss.config.mjs",
+    },
+  },
 
   head: [
     ["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
@@ -13,7 +19,7 @@ export default defineConfig({
 
     nav: [
       { text: "Guide", link: "/stack-overview" },
-      { text: "Integrations", link: "/integrations/clerk-auth" },
+      { text: "Integrations", link: "/integrations/nextjs" },
       { text: "Rules", link: "/rules/" },
     ],
 
@@ -31,23 +37,58 @@ export default defineConfig({
         ],
       },
       {
-        text: "Integrations",
+        text: "Core",
         collapsed: false,
         items: [
+          { text: "Next.js", link: "/integrations/nextjs" },
           { text: "TypeScript", link: "/integrations/typescript" },
+          { text: "Turborepo", link: "/integrations/turborepo" },
+          { text: "React Query", link: "/integrations/react-query" },
+          { text: "tRPC", link: "/integrations/trpc" },
+        ],
+      },
+      {
+        text: "Styling & UI",
+        collapsed: false,
+        items: [
           { text: "Tailwind CSS", link: "/integrations/tailwind" },
           { text: "Design System", link: "/integrations/design-system" },
-          { text: "Clerk Auth", link: "/integrations/clerk-auth" },
+          { text: "UI Components", link: "/integrations/ui-components" },
+          { text: "Animation", link: "/integrations/animation" },
+        ],
+      },
+      {
+        text: "Data & Auth",
+        collapsed: false,
+        items: [
           { text: "Drizzle + Neon", link: "/integrations/drizzle-neon" },
-          { text: "tRPC", link: "/integrations/trpc" },
+          { text: "Clerk Auth", link: "/integrations/clerk-auth" },
           { text: "Env Validation", link: "/integrations/env-validation" },
           { text: "Zustand", link: "/integrations/zustand" },
+        ],
+      },
+      {
+        text: "Features",
+        collapsed: true,
+        items: [
           { text: "Forms", link: "/integrations/forms" },
+          { text: "UploadThing", link: "/integrations/uploadthing" },
           { text: "Resend Email", link: "/integrations/resend-email" },
+        ],
+      },
+      {
+        text: "AI/ML",
+        collapsed: true,
+        items: [
           { text: "OpenRouter", link: "/integrations/openrouter" },
           { text: "fal.ai", link: "/integrations/fal-ai" },
           { text: "Voyage Embeddings", link: "/integrations/voyage-embeddings" },
-          { text: "UploadThing", link: "/integrations/uploadthing" },
+        ],
+      },
+      {
+        text: "Quality",
+        collapsed: true,
+        items: [
           { text: "Biome + Ultracite", link: "/integrations/biome-ultracite" },
           { text: "Testing", link: "/integrations/testing" },
         ],

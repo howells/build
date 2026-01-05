@@ -1,121 +1,130 @@
-/* Sohne font */
-@font-face {
-  font-family: "Sohne";
-  src: url("/fonts/Sohne-Buch.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Sohne";
-  src: url("/fonts/Sohne-Kraftig.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Sohne";
-  src: url("/fonts/Sohne-Halbfett.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Root variables */
+/* Root variables - Tailwind Zinc palette */
 :root {
-  /* Typography */
-  --vp-font-family-base: "Sohne", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, sans-serif;
-  --vp-font-family-mono: "SF Mono", SFMono-Regular, ui-monospace, Menlo, Monaco,
-    Consolas, monospace;
+  --vp-font-family-base: var(--font-sans);
+  --vp-font-family-mono: "SF Mono", SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace;
 
-  /* Neutral palette matching danielhowells */
-  --vp-c-bg: #f5f5f5;
-  --vp-c-bg-soft: #e5e5e5;
-  --vp-c-bg-mute: #d4d4d4;
-  --vp-c-bg-alt: #fafafa;
+  /* Zinc light mode */
+  --vp-c-bg: #f4f4f5;           /* zinc-100 */
+  --vp-c-bg-soft: #e4e4e7;      /* zinc-200 */
+  --vp-c-bg-mute: #d4d4d8;      /* zinc-300 */
+  --vp-c-bg-alt: #fafafa;       /* zinc-50 */
 
-  --vp-c-text-1: #0a0a0a;
-  --vp-c-text-2: #404040;
-  --vp-c-text-3: #525252;
+  --vp-c-text-1: #09090b;       /* zinc-950 */
+  --vp-c-text-2: #52525b;       /* zinc-600 */
+  --vp-c-text-3: #71717a;       /* zinc-500 */
 
-  --vp-c-divider: #d4d4d4;
-  --vp-c-divider-light: #e5e5e5;
+  --vp-c-divider: #d4d4d8;      /* zinc-300 */
+  --vp-c-divider-light: #e4e4e7; /* zinc-200 */
 
-  /* Brand color - subtle neutral */
-  --vp-c-brand-1: #0a0a0a;
-  --vp-c-brand-2: #262626;
-  --vp-c-brand-3: #404040;
-  --vp-c-brand-soft: rgba(10, 10, 10, 0.1);
+  /* Brand */
+  --vp-c-brand-1: #09090b;
+  --vp-c-brand-2: #18181b;
+  --vp-c-brand-3: #27272a;
+  --vp-c-brand-soft: rgba(9, 9, 11, 0.1);
 
   /* Button */
-  --vp-button-brand-bg: #0a0a0a;
-  --vp-button-brand-hover-bg: #262626;
-  --vp-button-brand-active-bg: #171717;
+  --vp-button-brand-bg: #09090b;
+  --vp-button-brand-hover-bg: #18181b;
+  --vp-button-brand-active-bg: #27272a;
   --vp-button-brand-text: #fafafa;
 
-  /* Sidebar */
+  /* Sidebar & Nav */
   --vp-sidebar-bg-color: var(--vp-c-bg);
-
-  /* Nav */
   --vp-nav-bg-color: var(--vp-c-bg);
 
   /* Code */
   --vp-code-block-bg: #fafafa;
-  --vp-code-line-highlight-color: rgba(10, 10, 10, 0.05);
+  --vp-code-line-highlight-color: rgba(9, 9, 11, 0.05);
 }
 
-/* Dark mode */
+/* Dark mode - Zinc */
 .dark {
-  --vp-c-bg: #0a0a0a;
-  --vp-c-bg-soft: #171717;
-  --vp-c-bg-mute: #262626;
-  --vp-c-bg-alt: #0a0a0a;
+  --vp-c-bg: #09090b;           /* zinc-950 */
+  --vp-c-bg-soft: #18181b;      /* zinc-900 */
+  --vp-c-bg-mute: #27272a;      /* zinc-800 */
+  --vp-c-bg-alt: #09090b;
 
-  --vp-c-text-1: #fafafa;
-  --vp-c-text-2: #a3a3a3;
-  --vp-c-text-3: #737373;
+  --vp-c-text-1: #fafafa;       /* zinc-50 */
+  --vp-c-text-2: #a1a1aa;       /* zinc-400 */
+  --vp-c-text-3: #71717a;       /* zinc-500 */
 
-  --vp-c-divider: #262626;
-  --vp-c-divider-light: #171717;
+  --vp-c-divider: #27272a;      /* zinc-800 */
+  --vp-c-divider-light: #18181b; /* zinc-900 */
 
   --vp-c-brand-1: #fafafa;
-  --vp-c-brand-2: #e5e5e5;
-  --vp-c-brand-3: #d4d4d4;
+  --vp-c-brand-2: #e4e4e7;
+  --vp-c-brand-3: #d4d4d8;
   --vp-c-brand-soft: rgba(250, 250, 250, 0.1);
 
   --vp-button-brand-bg: #fafafa;
-  --vp-button-brand-hover-bg: #e5e5e5;
-  --vp-button-brand-active-bg: #d4d4d4;
-  --vp-button-brand-text: #0a0a0a;
+  --vp-button-brand-hover-bg: #e4e4e7;
+  --vp-button-brand-active-bg: #d4d4d8;
+  --vp-button-brand-text: #09090b;
 
-  --vp-code-block-bg: #171717;
+  --vp-code-block-bg: #18181b;
   --vp-code-line-highlight-color: rgba(250, 250, 250, 0.05);
 }
 
-/* Typography refinements */
+/* ===========================================
+   GLOBAL RESET: 14px / 400 weight everywhere
+   Only shade varies for hierarchy
+   =========================================== */
+
+* {
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+}
+
 body {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* ============================================
-   NAV - Minimal, understated
-   ============================================ */
+/* Small caps utility - only exception to 14px */
+.small-caps {
+  text-transform: uppercase !important;
+  font-size: 12px !important;
+  letter-spacing: 0.08em !important;
+  font-weight: 400 !important;
+}
+
+/* ===========================================
+   NAV
+   =========================================== */
+
 .VPNav {
-  border-bottom: 1px solid var(--vp-c-divider-light);
+  border-bottom: 1px solid var(--vp-c-divider-light) !important;
+}
+
+.VPNavBar {
+  border-bottom: none !important;
 }
 
 .VPNavBar .title {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+.VPNavBar > .wrapper > .container > .title {
+  padding-left: 32px !important;
+}
+
+.VPNavBar .VPNavBarTitle {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+.VPNavBarTitle a.title {
+  padding-left: 0 !important;
 }
 
 .VPNavBarMenu .VPNavBarMenuLink {
-  font-size: 13px;
+  font-size: 14px !important;
+  font-weight: 400 !important;
   color: var(--vp-c-text-3);
 }
 
@@ -124,7 +133,6 @@ body {
   color: var(--vp-c-text-1);
 }
 
-/* Search - more subtle */
 .VPNavBarSearch .DocSearch-Button {
   background: transparent;
   border: 1px solid var(--vp-c-divider-light);
@@ -134,25 +142,34 @@ body {
   border-color: var(--vp-c-divider);
 }
 
-/* ============================================
-   SIDEBAR - Editorial, quiet
-   ============================================ */
+/* Search button text */
+.DocSearch-Button-Placeholder,
+.DocSearch-Button-Keys kbd {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+/* ===========================================
+   SIDEBAR
+   =========================================== */
+
 .VPSidebar {
   border-right: 1px solid var(--vp-c-divider-light);
 }
 
-/* Section headers - uppercase like homepage */
+/* Level 0 = section headers (small caps) */
 .VPSidebarItem.level-0 > .item > .text {
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--vp-c-text-3);
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: var(--vp-c-text-3) !important;
 }
 
-/* Links */
+/* All other sidebar items */
 .VPSidebarItem .text {
-  font-size: 13px;
+  font-size: 14px !important;
+  font-weight: 400 !important;
   color: var(--vp-c-text-2);
   transition: color 0.15s;
 }
@@ -162,28 +179,34 @@ body {
 }
 
 .VPSidebarItem.is-active > .item > .text {
-  color: var(--vp-c-text-1);
-  font-weight: 400;
+  color: var(--vp-c-text-1) !important;
+  font-weight: 400 !important;
 }
 
-/* Remove indicator bar */
 .VPSidebarItem.is-active > .item > .indicator {
   display: none;
 }
 
-/* ============================================
-   ON THIS PAGE (TOC) - Minimal
-   ============================================ */
+/* Collapse icons */
+.VPSidebarItem .caret {
+  font-size: 14px !important;
+}
+
+/* ===========================================
+   ON THIS PAGE (right sidebar)
+   =========================================== */
+
 .VPDocAsideOutline .outline-title {
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--vp-c-text-3);
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: var(--vp-c-text-3) !important;
 }
 
 .VPDocAsideOutline .outline-link {
-  font-size: 12px;
+  font-size: 14px !important;
+  font-weight: 400 !important;
   color: var(--vp-c-text-3);
   transition: color 0.15s;
 }
@@ -193,62 +216,78 @@ body {
   color: var(--vp-c-text-1);
 }
 
-/* Hide the marker */
 .VPDocAsideOutline .outline-marker {
   display: none;
 }
 
-/* ============================================
-   CONTENT - Refined typography
-   ============================================ */
-.vp-doc h1 {
-  font-size: 18px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.4;
-  border-bottom: none;
-  padding-bottom: 0;
+/* ===========================================
+   CONTENT
+   All 14px, weight 400, vary by shade only
+   =========================================== */
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.vp-doc h4,
+.vp-doc h5,
+.vp-doc h6 {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
 }
 
+.vp-doc h1 {
+  color: var(--vp-c-text-1);
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 8px;
+}
+
+/* h2 = section dividers (small caps) */
 .vp-doc h2 {
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: var(--vp-c-text-3) !important;
   margin-top: 48px;
   padding-top: 24px;
   border-top: 1px solid var(--vp-c-divider-light);
 }
 
 .vp-doc h3 {
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  color: var(--vp-c-text-1);
   margin-top: 32px;
 }
 
-.vp-doc h4 {
-  font-size: 13px;
-  font-weight: 500;
-}
-
-/* Paragraph */
-.vp-doc p {
-  font-size: 14px;
-  line-height: 1.7;
+.vp-doc h4,
+.vp-doc h5,
+.vp-doc h6 {
   color: var(--vp-c-text-2);
 }
 
-/* Lists */
+.vp-doc p {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+}
+
 .vp-doc ul,
 .vp-doc ol {
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.6;
   color: var(--vp-c-text-2);
 }
 
-/* Links - subtle underline */
+.vp-doc li {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
 .vp-doc a {
   color: var(--vp-c-text-1);
+  font-weight: 400 !important;
   text-decoration: underline;
   text-decoration-color: var(--vp-c-divider);
   text-underline-offset: 3px;
@@ -259,7 +298,17 @@ body {
   text-decoration-color: var(--vp-c-text-1);
 }
 
-/* Permalink hash - hide by default */
+.vp-doc strong,
+.vp-doc b {
+  font-weight: 400 !important;
+  color: var(--vp-c-text-1);
+}
+
+.vp-doc em,
+.vp-doc i {
+  font-weight: 400 !important;
+}
+
 .vp-doc .header-anchor {
   opacity: 0;
   transition: opacity 0.15s;
@@ -271,60 +320,131 @@ body {
   opacity: 0.3;
 }
 
-/* Code blocks */
+/* ===========================================
+   CODE
+   =========================================== */
+
 .vp-doc [class*="language-"] {
   border-radius: 6px;
 }
 
 .vp-doc [class*="language-"] code {
-  font-size: 13px;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
 }
 
 .vp-doc :not(pre) > code {
   background: var(--vp-c-bg-soft);
   padding: 0.125rem 0.375rem;
   border-radius: 4px;
-  font-size: 0.875em;
+  font-size: 14px !important;
+  font-weight: 400 !important;
 }
 
-/* Tables - refined */
+/* ===========================================
+   TABLES
+   =========================================== */
+
 .vp-doc table {
-  font-size: 13px;
+  font-size: 14px !important;
 }
 
+/* Table headers = small caps */
 .vp-doc th {
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--vp-c-text-3);
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: var(--vp-c-text-3) !important;
 }
 
 .vp-doc td {
+  font-size: 14px !important;
+  font-weight: 400 !important;
   color: var(--vp-c-text-2);
 }
 
-/* Blockquotes */
+/* ===========================================
+   BLOCKQUOTES & CALLOUTS
+   =========================================== */
+
 .vp-doc blockquote {
   border-left: 2px solid var(--vp-c-divider);
   color: var(--vp-c-text-3);
-  font-size: 14px;
+  font-size: 14px !important;
+  font-weight: 400 !important;
 }
 
-/* ============================================
-   FOOTER - Subtle
-   ============================================ */
+.vp-doc blockquote p {
+  color: var(--vp-c-text-3);
+}
+
+/* Custom containers/callouts */
+.vp-doc .custom-block {
+  font-size: 14px !important;
+}
+
+.vp-doc .custom-block-title {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+.vp-doc .custom-block p {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+/* ===========================================
+   FOOTER
+   =========================================== */
+
 .VPDocFooter .edit-link-button {
-  font-size: 12px;
+  font-size: 14px !important;
+  font-weight: 400 !important;
   color: var(--vp-c-text-3);
 }
 
 .VPDocFooter .pager-link .title {
-  font-size: 13px;
+  font-size: 14px !important;
+  font-weight: 400 !important;
 }
 
+/* Prev/Next labels = small caps */
 .VPDocFooter .pager-link .desc {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+}
+
+/* ===========================================
+   BADGE
+   =========================================== */
+
+.VPBadge {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+}
+
+/* ===========================================
+   BREADCRUMB
+   =========================================== */
+
+.VPDocBreadcrumb {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+/* ===========================================
+   LOCAL NAV (mobile)
+   =========================================== */
+
+.VPLocalNav {
+  font-size: 14px !important;
+}
+
+.VPLocalNav .menu-text {
+  font-size: 14px !important;
+  font-weight: 400 !important;
 }
