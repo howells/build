@@ -19,18 +19,18 @@ Scope: All apps and packages.
 - SHOULD: Part components should describe their role: `FolderActionMenu`, `DialogHeader`, `FormFieldError` — not just `Actions`, `Header`, `Error`.
 
 ## Design System First
-- MUST: Use design system primitives for layout and typography instead of raw HTML with custom classes.
-- MUST: Prefer `Stack`, `HStack`, `VStack`, `Flex`, `Grid` for layout over raw `<div>` with flex/grid classes.
-- MUST: Prefer `Heading` component for headings (`h1-h6`) and `Text` for paragraph/body text over raw elements with custom typography classes.
-- MUST: Use `Button` component variants instead of raw `<button>` with custom styling.
+- MUST: Check for the existence of design system primitives (`Stack`, `Grid`, `Container`, `Text`, `Heading`) in the project before using them.
+- MUST: IF primitives exist: Use them for layout and typography instead of raw HTML.
+- MUST: IF primitives DO NOT exist: Use raw HTML (`div`, `h1`, `p`) with utility classes.
+- SHOULD: When missing a primitive, prefer defining it over one-off `className` usage if the pattern repeats.
+- SHOULD: Use `Button` component variants instead of raw `<button>` with custom styling.
 - SHOULD: Compose UI from design system primitives; only reach for custom `className` when design system doesn't cover the case.
-- SHOULD: When missing a primitive, propose adding it to the design system rather than building one-off solutions.
 
 ## Styling Approach
-- MUST: Minimize custom `className` usage in app components; rely on design system component props.
-- SHOULD: Use semantic props (`variant="muted"`, `size="sm"`, `gap="4"`) over utility classes.
+- MUST: Minimize custom `className` usage in app components; rely on design system component props (if available).
+- SHOULD: Use semantic props (`variant="muted"`, `size="sm"`) over utility classes.
 - SHOULD: When custom classes are needed, keep them minimal and focused on layout/positioning only.
-- NEVER: Recreate design system patterns with raw HTML + Tailwind when a component exists.
+
 
 ## State Management
 - SHOULD: Use `useState` for strictly local, ephemeral UI state.
