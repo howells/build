@@ -1,0 +1,22 @@
+{
+  "name": "build",
+  "version": "1.0.0",
+  "description": "Stack-specific knowledge for bootstrapping and shipping Next.js projects. Includes new project setup, production checklists, preferred dependencies, and frontend-design aesthetic skill. Pairs with github:howells/ideate for design-first workflows.",
+  "author": {
+    "name": "Daniel Howells",
+    "url": "https://github.com/howells"
+  },
+  "repository": "https://github.com/howells/build",
+  "license": "MIT",
+  "keywords": [
+    "nextjs",
+    "react",
+    "typescript",
+    "tailwind",
+    "drizzle",
+    "stack",
+    "bootstrap",
+    "production",
+    "frontend-design"
+  ]
+}
